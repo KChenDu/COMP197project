@@ -1,0 +1,4 @@
+__pycache__
+.idea
+data/oxford-iiit-pet
+playground.py

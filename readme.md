@@ -13,13 +13,15 @@ The **most recommended** installation is to first create a conda environment and
   ```bash
   conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
   ```
-Then, go to Anaconda and install `jupyter`, `h5py` and `matplotlib` manually (**recommended**) or run the following command:
+Then, go to Anaconda and install each package in `requirements.txt` manually (**recommended**) or run the following command:
 ```bash
 conda install --file requirements.txt
 ```
 ***
 ## Datasets
-- **Oxford-IIIT Pet** Dataset: Run the following command in project root directory:
+### Oxford-IIIT Pet Dataset
+
+  Run the following command in project root directory:
   ```bash
   python data/download.py
   ```

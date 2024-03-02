@@ -15,11 +15,11 @@ The **most recommended** installation is to first create a conda environment and
   ```
 Then, go to Anaconda and install `jupyter`, `h5py` and `matplotlib` manually (**recommended**) or run the following command:
 ```bash
-conda install jupyter h5py matplotlib
+conda install --file requirements.txt
 ```
 ***
 ## Datasets
-- Oxford-IIIT Pet Dataset: Run the following command in project root directory:
+- **Oxford-IIIT Pet** Dataset: Run the following command in project root directory:
   ```bash
   python data/download.py
   ```

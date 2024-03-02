@@ -1,4 +1,6 @@
 __pycache__
 .idea
 data/oxford-iiit-pet
+data/train_images.jpg
+data/train_labels.txt
 playground.py

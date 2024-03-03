@@ -2,7 +2,7 @@ import numpy as np
 
 from os import path
 from PIL import Image
-from loader import H5ImageLoader
+from data.loader import H5ImageLoader
 
 ROOT = path.dirname(path.realpath(__file__))
 DATA_PATH = ROOT + '/oxford-iiit-pet'

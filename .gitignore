@@ -1,5 +1,6 @@
 __pycache__
 .idea
 data/oxford-iiit-pet
-data/images
-playground.py
+*images
+*playground.py
+*test.ipynb

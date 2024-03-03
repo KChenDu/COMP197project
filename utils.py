@@ -1,8 +1,9 @@
-from pathlib import Path
-
 import torch
+
+from pathlib import Path
 from matplotlib import pyplot as plt
-from torch import Tensor
+from torch import Tensor, mean, concat
+from loguru import logger
 
 
 IMAGES_PATH = Path() / "images"
@@ -54,24 +55,34 @@ class Trainer:
         return losses, dsc_scores
 
     def fit(self, model, train_dataloader, valid_dataloader, optimizer):
+        train_step = self.train_step
+        val_step = self.val_step
         freq_save = self.freq_save
         freq_info = self.freq_info
 
         for epoch in range(1, self.max_epochs + 1):
-            # train step
             loss = None
             for frames, masks in train_dataloader:
-                loss = self.train_step(model, frames, masks, optimizer)
+                loss = train_step(model, frames, masks, optimizer)
 
             if epoch % freq_info == 0:
-                print(f'Epoch {epoch}: loss = {loss: .5f}')
+                logger.info(f'Epoch {epoch}: loss = {loss: .5f}')
 
             if epoch % freq_save == 0:
                 losses_all, dsc_scores_all = [], []
-                for frames_val, masks_val in valid_dataloader:
-                    losses, dsc_scores = self.val_step(model, frames_val, masks_val)
-                    losses_all.append([losses])
-                    dsc_scores_all.append([dsc_scores])
-                print(f'Epoch {epoch}: val-loss={torch.reduce_mean(tf.concat(losses_all, axis=0)): .5f}, val-DSC={tf.reduce_mean(tf.concat(dsc_scores_all, axis=0)): .5f}')
-                tf.saved_model.save(model, os.path.join(save_path, 'epoch{:d}'.format(epoch)))
-                tf.print('Model saved.')
+                for frames, masks in valid_dataloader:
+                    losses, dsc_scores = val_step(model, frames, masks)
+                    losses_all.append(losses)
+                    dsc_scores_all.append(dsc_scores)
+                # Dangerous: this piece below is not sure for me and not tested, please (everyone who looking) help check it comparing with tutorial's code
+                logger.info(f'Epoch {epoch}: val-loss = {mean(concat(losses_all)): .5f}, val-DSC = {mean(concat(dsc_scores_all)): .5f}')
+                torch.save(model, Path(__file__).parent / 'models' / 'checkpoints' / type(model).__name__ + f'epoch {epoch:d}')
+                logger.info('Model saved.')
+
+    @staticmethod
+    def validate(model, valid_dataloader):
+        raise NotImplementedError
+
+    @staticmethod
+    def test(model, test_dataloader):
+        raise NotImplementedError

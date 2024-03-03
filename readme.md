@@ -25,5 +25,5 @@ Run the following command in project root directory:
 ```bash
 python data/download.py
  ```
-then the dataset will appear in `data/oxford-iiit-pet` directory.
+then the dataset will appear in `data/oxford-iiit-pet`.
 - **Caution**: Do not push the datasets to code repository. Manage them in [team's OneDrive](https://liveuclac-my.sharepoint.com/:f:/r/personal/ucabkc8_ucl_ac_uk/Documents/COMP197project?csf=1&web=1&e=eHOMTq).

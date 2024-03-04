@@ -76,7 +76,7 @@ class Trainer:
                     dsc_scores_all.append(dsc_scores)
                 # Dangerous: this piece below is not sure for me and not tested, please (everyone who looking) help check it comparing with tutorial's code
                 logger.info(f'Epoch {epoch}: val-loss = {mean(concat(losses_all)): .5f}, val-DSC = {mean(concat(dsc_scores_all)): .5f}')
-                torch.save(model, Path(__file__).parent / 'models' / 'checkpoints' / type(model).__name__ + f'epoch {epoch:d}')
+                torch.save(model, Path(__file__).parent / 'models' / 'checkpoints' / type(model).__name__ + f'epoch {epoch: d}')
                 logger.info('Model saved.')
 
     @staticmethod

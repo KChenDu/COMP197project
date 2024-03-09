@@ -1,9 +1,10 @@
 from argparse import ArgumentParser
-from settings import DATA_ROOT, TRANSFORM, TESTING_BATCH_SIZE as BATCH_SIZE, N_CPU, MODEL
-from torchvision.datasets import OxfordIIITPet
+from settings import OxfordIIITPet_DATA_ROOT, TESTING_BATCH_SIZE as BATCH_SIZE, N_CPU, MODEL
+from data.datasets import SimpleOxfordPetDataset
 from torch.utils.data import DataLoader
 from torch import load
 from utils import Tester
+from loguru import logger
 
 
 if __name__ == '__main__':
@@ -11,8 +12,11 @@ if __name__ == '__main__':
     parser.add_argument('model_checkpoint')
     args = parser.parse_args()
 
-    # Download and load the test dataset
-    test_dataset = OxfordIIITPet(DATA_ROOT, "test", "segmentation", transform=TRANSFORM, target_transform=TRANSFORM, download=True)
+    # Download the dataset if it does not exist
+    SimpleOxfordPetDataset.download(OxfordIIITPet_DATA_ROOT)
+
+    # Load the test dataset
+    test_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "test")
 
     # Create the dataloader
     test_dataloader = DataLoader(test_dataset, BATCH_SIZE, num_workers=N_CPU)
@@ -24,4 +28,4 @@ if __name__ == '__main__':
 
     tester = Tester()
     metric = tester.test(model, test_dataloader)
-    print(metric)
+    logger.info(f"result: {metric}")

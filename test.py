@@ -1,6 +1,5 @@
 from settings import DATA_ROOT, OxfordIIITPet_DATA_ROOT, TESTING_BATCH_SIZE, N_CPU, MODEL
 from torchvision.datasets import OxfordIIITPet
-from pathlib import Path
 from segmentation_models_pytorch.datasets import SimpleOxfordPetDataset
 from torch.utils.data import DataLoader
 from utils import Tester

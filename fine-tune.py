@@ -9,7 +9,6 @@ from settings import (SEED,
                       FINE_TUNING_FREQ_SAVE as FREQ_SAVE)
 from torch import manual_seed
 from torchvision.datasets import OxfordIIITPet
-from pathlib import Path
 from segmentation_models_pytorch.datasets import SimpleOxfordPetDataset
 from torch.utils.data import DataLoader
 from utils import Trainer

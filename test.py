@@ -21,4 +21,5 @@ if __name__ == '__main__':
     model = MODEL()
 
     tester = Tester()
-    tester.test(model, test_dataloader)
+    metric = tester.test(model, test_dataloader)
+    print(metric)

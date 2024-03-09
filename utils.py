@@ -65,10 +65,10 @@ class Trainer:
             for frames, masks in train_dataloader:
                 loss = train_step(model, frames, masks, optimizer)
 
-            if epoch % freq_info == 0:
+            if epoch % freq_info < 1:
                 logger.info(f'Epoch {epoch}: loss = {loss: .5f}')
 
-            if epoch % freq_save == 0:
+            if epoch % freq_save < 1:
                 losses_all, dsc_scores_all = [], []
                 for frames, masks in valid_dataloader:
                     losses, dsc_scores = val_step(model, frames, masks)

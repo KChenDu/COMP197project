@@ -1,6 +1,7 @@
 # from data.loader import H5ImageLoader # This approach will probably not be used
 from torchvision.datasets import OxfordIIITPet
-from torch.utils.data import random_split, DataLoader
+from segmentation_models_pytorch.datasets import SimpleOxfordPetDataset
+from torch.utils.data import DataLoader
 from models.nn import PetModel
 from torch.optim import AdamW
 from utils import Trainer
@@ -9,12 +10,21 @@ from utils import Trainer
 if __name__ == '__main__':
     batch_size = 16
 
-    # Load the data into a train set and a validation set
-    train_dataset, valid_dataset = random_split(OxfordIIITPet('data', download=True), (.9, .1))
-    # Create dataloaders for both sets
-    train_dataloader, valid_dataloader = DataLoader(train_dataset, batch_size, True), DataLoader(valid_dataset, batch_size)
+    # Download the dataset if it doesn't exist
+    OxfordIIITPet('data', download=True)
 
-    # This approach below will probably not be used
+    # Load the train and validation datasets
+    train_dataset = SimpleOxfordPetDataset("data/oxford-iiit-pet", "train")
+    valid_dataset = SimpleOxfordPetDataset("data/oxford-iiit-pet", "valid")
+
+    # It is a good practice to check datasets don't intersect with each other
+    assert set(train_dataset.filenames).isdisjoint(set(valid_dataset.filenames))
+
+    # Create the dataloaders
+    train_dataloader = DataLoader(train_dataset, batch_size, shuffle=True)
+    valid_dataloader = DataLoader(valid_dataset, batch_size)
+
+    # Using professor's Dataloader (This approach will probably not be used)
     # train_dataloader = H5ImageLoader('data/oxford-iiit-pet/images_train.h5', 1, 'data/oxford-iiit-pet/labels_train.h5')
     # valid_dataloader = H5ImageLoader('data/oxford-iiit-pet/images_val.h5', 20, 'data/oxford-iiit-pet/labels_val.h5')
 

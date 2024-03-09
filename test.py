@@ -4,7 +4,7 @@ from torchvision.datasets import OxfordIIITPet
 from pathlib import Path
 from segmentation_models_pytorch.datasets import SimpleOxfordPetDataset
 from torch.utils.data import DataLoader
-from utils import Trainer
+from utils import Tester
 
 
 if __name__ == '__main__':
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     Path.rmdir(Path("images"))
 
     # Load the test datasets
-    test_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "train", )
+    test_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "test", )
 
     # Create the dataloader
     test_dataloader = DataLoader(test_dataset, TESTING_BATCH_SIZE, num_workers=N_CPU)
@@ -23,5 +23,5 @@ if __name__ == '__main__':
     # import the model
     model = MODEL()
 
-    trainer = Trainer()
-    trainer.test(model, test_dataloader)
+    tester = Tester()
+    tester.test(model, test_dataloader)

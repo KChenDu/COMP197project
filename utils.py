@@ -83,6 +83,12 @@ class Trainer:
     def validate(model, valid_dataloader):
         raise NotImplementedError
 
+
+class Tester:
+    def __init__(self):
+        # initialize parameters here as needed
+        pass
+
     @staticmethod
     def test(model, test_dataloader):
         raise NotImplementedError

@@ -17,7 +17,7 @@ if __name__ == '__main__':
     # Create the dataloader
     test_dataloader = DataLoader(test_dataset, TESTING_BATCH_SIZE, num_workers=N_CPU)
 
-    # import the model
+    # Import the model
     model = MODEL()
 
     tester = Tester()

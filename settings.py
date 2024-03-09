@@ -1,15 +1,17 @@
-from os import cpu_count
 from pathlib import Path
+from os import cpu_count
 from models.nn import PetModel
 from torch.optim import AdamW
 
 
 # General
+IMAGES_PATH = Path("images")
+MODEL_CHECKPOINTS_PATH = Path("models/checkpoints")
 SEED = 42
 N_CPU = cpu_count()
 
 # Data
-DATA_ROOT = Path('data')
+DATA_ROOT = Path("data")
 OxfordIIITPet_DATA_ROOT = DATA_ROOT / 'oxford-iiit-pet'
 
 # Model

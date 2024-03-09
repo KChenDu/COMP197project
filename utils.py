@@ -1,17 +1,16 @@
 import torch
 
-from pathlib import Path
+from settings import IMAGES_PATH
 from matplotlib import pyplot as plt
 from torch import Tensor, mean, concat
 from loguru import logger
-
-
-IMAGES_PATH = Path() / "images"
-IMAGES_PATH.mkdir(parents=True, exist_ok=True)
+from datetime import datetime
+from settings import MODEL_CHECKPOINTS_PATH
 
 
 def save_fig(fig_id, tight_layout=True, fig_extension="eps", resolution=300):
-    path = IMAGES_PATH / f"{fig_id}.{fig_extension}"
+    IMAGES_PATH.mkdir(parents=True, exist_ok=True)
+    path = IMAGES_PATH / (f"{fig_id}." + fig_extension)
     if tight_layout:
         plt.tight_layout()
     plt.savefig(path, format=fig_extension, dpi=resolution)
@@ -55,10 +54,12 @@ class Trainer:
         return losses, dsc_scores
 
     def fit(self, model, train_dataloader, valid_dataloader, optimizer):
+        name = type(model).__name__
         train_step = self.train_step
         val_step = self.val_step
         freq_save = self.freq_save
         freq_info = self.freq_info
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
         for epoch in range(1, self.max_epochs + 1):
             loss = None
@@ -76,7 +77,12 @@ class Trainer:
                     dsc_scores_all.append(dsc_scores)
                 # Dangerous: this piece below is not sure for me and not tested, please (everyone who looking) help check it comparing with tutorial's code
                 logger.info(f'Epoch {epoch}: val-loss = {mean(concat(losses_all)): .5f}, val-DSC = {mean(concat(dsc_scores_all)): .5f}')
-                torch.save(model, Path(__file__).parent / 'models' / 'checkpoints' / type(model).__name__ + f'epoch {epoch: d}')
+                torch.save({
+                    'epoch': epoch,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'loss': loss
+                }, MODEL_CHECKPOINTS_PATH / name / timestamp / f'epoch_{epoch: d}')
                 logger.info('Model saved.')
 
     @staticmethod

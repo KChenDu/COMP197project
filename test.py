@@ -1,5 +1,4 @@
-from settings import SEED, DATA_ROOT, OxfordIIITPet_DATA_ROOT, TESTING_BATCH_SIZE, N_CPU, MODEL
-from torch import manual_seed
+from settings import DATA_ROOT, OxfordIIITPet_DATA_ROOT, TESTING_BATCH_SIZE, N_CPU, MODEL
 from torchvision.datasets import OxfordIIITPet
 from pathlib import Path
 from segmentation_models_pytorch.datasets import SimpleOxfordPetDataset
@@ -8,8 +7,6 @@ from utils import Tester
 
 
 if __name__ == '__main__':
-    manual_seed(SEED)
-
     # Download the dataset if it doesn't exist
     OxfordIIITPet(DATA_ROOT, "test", target_types="segmentation", download=True)
     Path.rmdir(Path("images"))

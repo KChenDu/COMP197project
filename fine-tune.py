@@ -33,9 +33,9 @@ if __name__ == '__main__':
     train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=N_CPU)
     valid_dataloader = DataLoader(valid_dataset, BATCH_SIZE, num_workers=N_CPU)
 
-    # import the model
+    # Import the model
     model = MODEL()
-    # define the optimizer
+    # Define the optimizer
     optimizer = OPTIMIZER(model.parameters())
 
     trainer = Trainer(MAX_EPOCHS, FREQ_INFO, FREQ_SAVE)

@@ -1,7 +1,6 @@
 from argparse import ArgumentParser
-from settings import DATA_ROOT, OxfordIIITPet_DATA_ROOT, TESTING_BATCH_SIZE as BATCH_SIZE, N_CPU, MODEL
+from settings import DATA_ROOT, TRANSFORM, TESTING_BATCH_SIZE as BATCH_SIZE, N_CPU, MODEL
 from torchvision.datasets import OxfordIIITPet
-from segmentation_models_pytorch.datasets import SimpleOxfordPetDataset
 from torch.utils.data import DataLoader
 from torch import load
 from utils import Tester
@@ -12,11 +11,8 @@ if __name__ == '__main__':
     parser.add_argument('model_checkpoint')
     args = parser.parse_args()
 
-    # Download the dataset if it doesn't exist
-    OxfordIIITPet(DATA_ROOT, "test", target_types="segmentation", download=True)
-
-    # Load the test datasets
-    test_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "test", )
+    # Download and load the test dataset
+    test_dataset = OxfordIIITPet(DATA_ROOT, "test", "segmentation", transform=TRANSFORM, target_transform=TRANSFORM, download=True)
 
     # Create the dataloader
     test_dataloader = DataLoader(test_dataset, BATCH_SIZE, num_workers=N_CPU)

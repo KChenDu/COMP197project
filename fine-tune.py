@@ -1,31 +1,27 @@
 from settings import (SEED,
                       DATA_ROOT,
-                      OxfordIIITPet_DATA_ROOT,
+                      TRANSFORM,
                       FINE_TUNING_BATCH_SIZE as BATCH_SIZE,
-                      N_CPU, MODEL,
+                      N_CPU,
+                      MODEL,
                       FINE_TUNING_OPTIMIZER as OPTIMIZER,
                       FINE_TUNING_MAX_EPOCHS as MAX_EPOCHS,
                       FINE_TUNING_FREQ_INFO as FREQ_INFO,
                       FINE_TUNING_FREQ_SAVE as FREQ_SAVE)
 from torch import manual_seed
 from torchvision.datasets import OxfordIIITPet
-from segmentation_models_pytorch.datasets import SimpleOxfordPetDataset
-from torch.utils.data import DataLoader
+from torch.utils.data import random_split, DataLoader
 from utils import Trainer
 
 
 if __name__ == '__main__':
     manual_seed(SEED)
 
-    # Download the dataset if it doesn't exist
-    OxfordIIITPet(DATA_ROOT, target_types="segmentation", download=True)
+    # Download and load the trainval dataset
+    dataset = OxfordIIITPet(DATA_ROOT, target_types="segmentation", transform=TRANSFORM, target_transform=TRANSFORM, download=True)
 
-    # Load the train and validation datasets
-    train_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "train")
-    valid_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "valid")
-
-    # It is a good practice to check datasets don't intersect with each other
-    assert set(train_dataset.filenames).isdisjoint(set(valid_dataset.filenames))
+    # Download and load the train and validation datasets
+    train_dataset, valid_dataset = random_split(dataset, [.9, .1])
 
     # Create the dataloaders
     train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=N_CPU)

@@ -1,37 +1,42 @@
-# from data.loader import H5ImageLoader # This approach will probably not be used
+from settings import (SEED,
+                      DATA_ROOT,
+                      OxfordIIITPet_DATA_ROOT,
+                      FINE_TUNING_BATCH_SIZE as BATCH_SIZE,
+                      N_CPU, MODEL,
+                      FINE_TUNING_OPTIMIZER as OPTIMIZER,
+                      FINE_TUNING_MAX_EPOCHS as MAX_EPOCHS,
+                      FINE_TUNING_FREQ_INFO as FREQ_INFO,
+                      FINE_TUNING_FREQ_SAVE as FREQ_SAVE)
+from torch import manual_seed
 from torchvision.datasets import OxfordIIITPet
+from pathlib import Path
 from segmentation_models_pytorch.datasets import SimpleOxfordPetDataset
 from torch.utils.data import DataLoader
-from models.nn import PetModel
-from torch.optim import AdamW
 from utils import Trainer
 
 
 if __name__ == '__main__':
-    batch_size = 16
+    manual_seed(SEED)
 
     # Download the dataset if it doesn't exist
-    OxfordIIITPet('data', download=True)
+    OxfordIIITPet(DATA_ROOT, target_types="segmentation", download=True)
+    Path.rmdir(Path("images"))
 
     # Load the train and validation datasets
-    train_dataset = SimpleOxfordPetDataset("data/oxford-iiit-pet", "train")
-    valid_dataset = SimpleOxfordPetDataset("data/oxford-iiit-pet", "valid")
+    train_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "train")
+    valid_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "valid")
 
     # It is a good practice to check datasets don't intersect with each other
     assert set(train_dataset.filenames).isdisjoint(set(valid_dataset.filenames))
 
     # Create the dataloaders
-    train_dataloader = DataLoader(train_dataset, batch_size, shuffle=True)
-    valid_dataloader = DataLoader(valid_dataset, batch_size)
-
-    # Using professor's Dataloader (This approach will probably not be used)
-    # train_dataloader = H5ImageLoader('data/oxford-iiit-pet/images_train.h5', 1, 'data/oxford-iiit-pet/labels_train.h5')
-    # valid_dataloader = H5ImageLoader('data/oxford-iiit-pet/images_val.h5', 20, 'data/oxford-iiit-pet/labels_val.h5')
+    train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=N_CPU)
+    valid_dataloader = DataLoader(valid_dataset, BATCH_SIZE, num_workers=N_CPU)
 
     # import the model
-    model = PetModel()
+    model = MODEL()
     # define the optimizer
-    optimizer = AdamW(model.parameters())
+    optimizer = OPTIMIZER(model.parameters())
 
-    trainer = Trainer()
+    trainer = Trainer(MAX_EPOCHS, FREQ_INFO, FREQ_SAVE)
     trainer.fit(model, train_dataloader, valid_dataloader, optimizer)

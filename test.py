@@ -1,3 +1,27 @@
+from settings import SEED, DATA_ROOT, OxfordIIITPet_DATA_ROOT, TESTING_BATCH_SIZE, N_CPU, MODEL
+from torch import manual_seed
+from torchvision.datasets import OxfordIIITPet
+from pathlib import Path
+from segmentation_models_pytorch.datasets import SimpleOxfordPetDataset
+from torch.utils.data import DataLoader
+from utils import Trainer
+
+
 if __name__ == '__main__':
-    #  交给你们啦~
-    pass
+    manual_seed(SEED)
+
+    # Download the dataset if it doesn't exist
+    OxfordIIITPet(DATA_ROOT, "test", target_types="segmentation", download=True)
+    Path.rmdir(Path("images"))
+
+    # Load the test datasets
+    test_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "train", )
+
+    # Create the dataloader
+    test_dataloader = DataLoader(test_dataset, TESTING_BATCH_SIZE, num_workers=N_CPU)
+
+    # import the model
+    model = MODEL()
+
+    trainer = Trainer()
+    trainer.test(model, test_dataloader)

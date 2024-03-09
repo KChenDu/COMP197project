@@ -9,7 +9,6 @@ from utils import Tester
 if __name__ == '__main__':
     # Download the dataset if it doesn't exist
     OxfordIIITPet(DATA_ROOT, "test", target_types="segmentation", download=True)
-    Path.rmdir(Path("images"))
 
     # Load the test datasets
     test_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "test", )

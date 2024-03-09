@@ -20,7 +20,6 @@ if __name__ == '__main__':
 
     # Download the dataset if it doesn't exist
     OxfordIIITPet(DATA_ROOT, target_types="segmentation", download=True)
-    Path.rmdir(Path("images"))
 
     # Load the train and validation datasets
     train_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "train")

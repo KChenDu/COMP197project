@@ -18,9 +18,9 @@ Then, go to Anaconda and install each package in `requirements.txt` manually (**
 conda install --file requirements.txt
 ```
 ### Extra
-We will also use `loguru` to make a beautiful logging. One can intall it via pip:
+We will also use `smp` to import models and `loguru` to make a beautiful logging. One can intall it via pip:
 ```bash
-pip install loguru
+pip install smp loguru
 ```
 ***
 ## Datasets

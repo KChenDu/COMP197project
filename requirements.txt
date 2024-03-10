@@ -1,4 +1,3 @@
-pillow
 h5py
 matplotlib
 smp

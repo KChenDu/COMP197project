@@ -1,5 +1,4 @@
 h5py
 matplotlib
-smp
 jupyter
 loguru

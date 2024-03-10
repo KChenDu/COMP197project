@@ -20,7 +20,11 @@ if __name__ == '__main__':
     SimpleOxfordPetDataset.download(OxfordIIITPet_DATA_ROOT)
 
     # Load the train and validation datasets
-    train_dataset, valid_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "train"), SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "valid")
+    train_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "train")
+    valid_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "valid")
+
+    # It is a good practice to check datasets don't intersect with each other
+    assert set(train_dataset.filenames).isdisjoint(set(valid_dataset.filenames))
 
     # Create the dataloaders
     train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=N_CPU)

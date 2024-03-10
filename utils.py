@@ -56,7 +56,7 @@ class Trainer:
         return losses, dsc_scores
 
     @no_grad()
-    def validate(self, model, valid_dataloader):
+    def validate(self, model, valid_dataloader) -> tuple[list, list]:
         validation_step = self.validation_step
 
         losses_all, dsc_scores_all = [], []

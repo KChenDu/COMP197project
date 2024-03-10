@@ -2,7 +2,7 @@ import torch
 
 from settings import IMAGES_PATH
 from matplotlib import pyplot as plt
-from torch import Tensor, mean, concat
+from torch import Tensor, no_grad, mean, concat
 from loguru import logger
 from datetime import datetime
 from settings import MODEL_CHECKPOINTS_PATH
@@ -50,24 +50,24 @@ class Trainer:
     @staticmethod
     def validation_step(seg_net, images: Tensor, labels: Tensor) -> tuple[Tensor, Tensor]:
         images, labels = pre_process(images, labels)
-        predicts = seg_net(images, training=False)
-        with torch.no_grad():
-            losses = dice_loss(predicts, labels)
-            dsc_scores = dice_binary(predicts, labels)
+        predicts = seg_net(images)
+        losses = dice_loss(predicts, labels)
+        dsc_scores = dice_binary(predicts, labels)
         return losses, dsc_scores
 
+    @no_grad()
     def validate(self, model, valid_dataloader):
-        val_step = self.validation_step
+        validation_step = self.validation_step
 
         losses_all, dsc_scores_all = [], []
         for frames, masks in valid_dataloader:
-            losses, dsc_scores = val_step(model, frames, masks)
+            losses, dsc_scores = validation_step(model, frames, masks)
             losses_all.append(losses)
             dsc_scores_all.append(dsc_scores)
 
         return losses_all, dsc_scores_all
 
-    def fit(self, model, train_dataloader, valid_dataloader, optimizer):
+    def fit(self, model, train_dataloader, valid_dataloader, optimizer):  # TODO: check and test it
         name = type(model).__name__
         training_step = self.training_step
         validate = self.validate
@@ -104,6 +104,7 @@ class Tester:
         pass
 
     @staticmethod
+    @no_grad()
     def test(model, test_dataloader) -> float:
         # TODO: implement this (might be similar to Trainer.validate)
         return 1.

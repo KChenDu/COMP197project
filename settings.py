@@ -1,6 +1,5 @@
 from pathlib import Path
 from os import cpu_count
-from torchvision.transforms import Compose, ToTensor
 from models.nn import PetModel
 from torch.optim import AdamW
 
@@ -12,9 +11,7 @@ SEED = 42
 N_CPU = cpu_count()
 
 # Data
-DATA_ROOT = Path("data")
-OxfordIIITPet_DATA_ROOT = DATA_ROOT / 'oxford-iiit-pet'
-TRANSFORM = Compose([ToTensor()])
+OxfordIIITPet_DATA_ROOT = Path("data/oxford-iiit-pet")
 
 # Model
 MODEL = PetModel

@@ -17,14 +17,17 @@ def save_fig(fig_id, tight_layout=True, fig_extension="eps", resolution=300):
 
 
 def pre_process(images: Tensor, labels: Tensor) -> tuple[Tensor, Tensor]:
+    # TODO: implement this (depends on needs, can be not necessary)
     raise NotImplementedError
 
 
 def dice_loss(ps: Tensor, ts: Tensor) -> Tensor:
+    # TODO: implement this (but there is a chance that it is already implemented in segmentation_models_pytorch, check it first)
     raise NotImplementedError
 
 
 def dice_binary(ps: Tensor, ts: Tensor) -> Tensor:
+    # TODO: implement this (but there is a chance that it is already implemented in segmentation_models_pytorch, check it first)
     raise NotImplementedError
 
 
@@ -35,9 +38,9 @@ class Trainer:
         self.freq_save = freq_save
 
     @staticmethod
-    def train_step(model, images: Tensor, labels: Tensor, optimizer) -> Tensor:
+    def training_step(model, images: Tensor, labels: Tensor, optimizer) -> Tensor:
         images, labels = pre_process(images, labels)
-        # Q: add data augmentation
+        # TODO: add data augmentation (maybe here or not here)
         loss = dice_loss(model(images), labels)
         optimizer.zero_grad()
         loss.backward()
@@ -45,7 +48,7 @@ class Trainer:
         return loss
 
     @staticmethod
-    def val_step(seg_net, images: Tensor, labels: Tensor) -> tuple[Tensor, Tensor]:
+    def validation_step(seg_net, images: Tensor, labels: Tensor) -> tuple[Tensor, Tensor]:
         images, labels = pre_process(images, labels)
         predicts = seg_net(images, training=False)
         with torch.no_grad():
@@ -53,30 +56,39 @@ class Trainer:
             dsc_scores = dice_binary(predicts, labels)
         return losses, dsc_scores
 
+    def validate(self, model, valid_dataloader):
+        val_step = self.validation_step
+
+        losses_all, dsc_scores_all = [], []
+        for frames, masks in valid_dataloader:
+            losses, dsc_scores = val_step(model, frames, masks)
+            losses_all.append(losses)
+            dsc_scores_all.append(dsc_scores)
+
+        return losses_all, dsc_scores_all
+
     def fit(self, model, train_dataloader, valid_dataloader, optimizer):
         name = type(model).__name__
-        train_step = self.train_step
-        val_step = self.val_step
+        training_step = self.training_step
+        validate = self.validate
         freq_save = self.freq_save
         freq_info = self.freq_info
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+        timestamp = None
 
         for epoch in range(1, self.max_epochs + 1):
             loss = None
             for frames, masks in train_dataloader:
-                loss = train_step(model, frames, masks, optimizer)
+                loss = training_step(model, frames, masks, optimizer)
 
             if epoch % freq_info < 1:
                 logger.info(f'Epoch {epoch}: loss = {loss: .5f}')
 
             if epoch % freq_save < 1:
-                losses_all, dsc_scores_all = [], []
-                for frames, masks in valid_dataloader:
-                    losses, dsc_scores = val_step(model, frames, masks)
-                    losses_all.append(losses)
-                    dsc_scores_all.append(dsc_scores)
-                # Dangerous: this piece below is not sure for me and not tested, please (everyone who looking) help check it comparing with tutorial's code
+                losses_all, dsc_scores_all = validate(model, valid_dataloader)
+                # TODO: Danger! This piece below is not sure for me and not tested, please everyone who looking help check it comparing with tutorial's code
                 logger.info(f'Epoch {epoch}: val-loss = {mean(concat(losses_all)): .5f}, val-DSC = {mean(concat(dsc_scores_all)): .5f}')
+                if timestamp is None:
+                    timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
                 torch.save({
                     'epoch': epoch,
                     'model_state_dict': model.state_dict(),
@@ -85,16 +97,13 @@ class Trainer:
                 }, MODEL_CHECKPOINTS_PATH / name / timestamp / f'epoch_{epoch: d}')
                 logger.info('Model saved.')
 
-    @staticmethod
-    def validate(model, valid_dataloader):
-        raise NotImplementedError
-
 
 class Tester:
     def __init__(self):
-        # initialize parameters here as needed
+        # TODO: add configurable parameters for tester
         pass
 
     @staticmethod
     def test(model, test_dataloader) -> float:
+        # TODO: implement this (might be similar to Trainer.validate)
         return 1.

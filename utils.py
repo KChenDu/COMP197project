@@ -3,6 +3,7 @@ import torch
 from settings import IMAGES_PATH
 from matplotlib import pyplot as plt
 from torch import Tensor, no_grad, mean, concat
+from metrics import dice_loss, dice_binary
 from loguru import logger
 from datetime import datetime
 from settings import MODEL_CHECKPOINTS_PATH
@@ -18,16 +19,6 @@ def save_fig(fig_id, tight_layout=True, fig_extension="eps", resolution=300):
 
 def pre_process(images: Tensor, labels: Tensor) -> tuple[Tensor, Tensor]:
     # TODO: implement this (depends on needs, can be not necessary)
-    raise NotImplementedError
-
-
-def dice_loss(ps: Tensor, ts: Tensor) -> Tensor:
-    # TODO: implement this (but there is a chance that it is already implemented in segmentation_models_pytorch, check it first)
-    raise NotImplementedError
-
-
-def dice_binary(ps: Tensor, ts: Tensor) -> Tensor:
-    # TODO: implement this (but there is a chance that it is already implemented in segmentation_models_pytorch, check it first)
     raise NotImplementedError
 
 

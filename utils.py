@@ -51,11 +51,6 @@ class Trainer:
 
     @staticmethod
     def validation_step(model, images: Tensor, labels: Tensor) -> tuple[Tensor, Tensor]:
-        # model.eval()
-        # model.to(device)
-        # labels = labels.squeeze(-1)
-        # images = images.to(device)
-        # labels = labels.to(device)
         images, labels = pre_process(images, labels)
         predicts = model(images)
         loss = dice_loss(predicts, labels)

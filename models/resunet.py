@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class _Conv2DLayer(nn.Module):
     def __init__(self, in_channels, out_channels, is_output=False):
         super(_Conv2DLayer, self).__init__()
@@ -17,6 +18,7 @@ class _Conv2DLayer(nn.Module):
         if not self.is_output:
             x = self.bn(x)
         return x
+
 
 class _ResNetBlock(nn.Module):
     def __init__(self, out_channels, block_type, bn=True):
@@ -70,28 +72,28 @@ class ResUNet(nn.Module):
         skips = []
         
         # Encoder
-        print("============= Encoder Part =============")
+        # print("============= Encoder Part =============")
         for down in self.encoder[:-1]:
-            print("Before down-sampling: x.shape = ",x.shape)
+            # print("Before down-sampling: x.shape = ",x.shape)
             x = down(x)
-            print("After down-sampling: x.shape = ",x.shape)
-            print("\n")
+            # print("After down-sampling: x.shape = ",x.shape)
+            # print("\n")
             skips.append(x)
-        print("Before down-sampling: x.shape = ",x.shape)
+        # print("Before down-sampling: x.shape = ",x.shape)
         x = self.encoder[-1](x)
-        print("After down-sampling: x.shape = ",x.shape)
-        print("\n")
+        # print("After down-sampling: x.shape = ",x.shape)
+        # print("\n")
 
         # Decoder, connect with sysmetric encoder
-        print("============= Decoder Part =============")
+        # print("============= Decoder Part =============")
         for up, skip in zip(self.decoder[:-1], reversed(skips)):
-            print("Before up-sampling: x.shape = ",x.shape)
+            # print("Before up-sampling: x.shape = ",x.shape)
             x = F.interpolate(x, size=skip.shape[2:], mode='nearest') + skip  # Resize x to match the size of skip
             x = up(x)
-            print("After up-sampling: x.shape = ",x.shape)
-            print("\n")
+            # print("After up-sampling: x.shape = ",x.shape)
+            # print("\n")
         x = self.decoder[-1](x)
-        print("After up-sampling: x.shape = ",x.shape)
+        # print("After up-sampling: x.shape = ",x.shape)
 
-        print("Final shape: ",self.out_layer(x).shape)
+        # print("Final shape: ",self.out_layer(x).shape)
         return self.out_layer(x)

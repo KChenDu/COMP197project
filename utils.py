@@ -8,6 +8,7 @@ from loguru import logger
 from datetime import datetime
 from settings import MODEL_CHECKPOINTS_PATH
 
+from tqdm import tqdm
 
 def save_fig(fig_id, tight_layout=True, fig_extension="eps", resolution=300):
     IMAGES_PATH.mkdir(parents=True, exist_ok=True)
@@ -67,8 +68,9 @@ class Trainer:
         timestamp = None
 
         for epoch in range(1, self.max_epochs + 1):
+            logger.info(f'Epoch {epoch} started.')
             loss = None
-            for frames, masks in train_dataloader:
+            for i, (frames, masks) in tqdm(enumerate(train_dataloader, 0)):
                 loss = training_step(model, frames, masks, optimizer)
 
             if epoch % freq_info < 1:

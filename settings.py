@@ -2,7 +2,7 @@ from pathlib import Path
 from os import cpu_count
 from models.nn import PetModel
 from torch.optim import AdamW
-
+import torch
 
 # General
 IMAGES_PATH = Path("images")
@@ -25,3 +25,14 @@ FINE_TUNING_FREQ_SAVE = 100
 
 # Testing
 TESTING_BATCH_SIZE = 16
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+if DEVICE == torch.device("cuda"):
+    torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.enabled = True
+    torch.backends.cudnn.fastest = True
+    torch.set_default_device(DEVICE)
+    torch.set_default_dtype(torch.float32)
+    
+    if N_CPU > 1:
+        torch.multiprocessing.set_start_method("spawn")

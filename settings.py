@@ -1,6 +1,7 @@
 from pathlib import Path
 from os import cpu_count
 from models.nn import PetModel
+from models.resunet import ResUNet
 from torch.optim import AdamW
 import torch
 
@@ -14,7 +15,8 @@ N_CPU = cpu_count()
 OxfordIIITPet_DATA_ROOT = Path("data/oxford-iiit-pet")
 
 # Model
-MODEL = PetModel
+# MODEL = PetModel
+MODEL = ResUNet
 
 # Fine-tuning
 FINE_TUNING_BATCH_SIZE = 16

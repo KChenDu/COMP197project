@@ -1,6 +1,6 @@
 import torch
 
-from settings import IMAGES_PATH
+from settings import IMAGES_PATH, DEVICE
 from matplotlib import pyplot as plt
 from torch import Tensor, device, no_grad, mean, tensor
 from tqdm import tqdm
@@ -32,13 +32,8 @@ class Trainer:
         self.max_epochs = max_epochs
         self.freq_info = freq_info
         self.freq_save = freq_save
-
-        if torch.cuda.is_available():
-            self.device = device('cuda')
-        elif torch.backends.mps.is_built():
-            self.device = device('mps')
-        else:
-            self.device = device('cpu')
+        torch.set_default_device(DEVICE)
+        self.device = device(DEVICE)
 
     @staticmethod
     def training_step(model, images: Tensor, labels: Tensor, optimizer) -> Tensor:
@@ -64,9 +59,9 @@ class Trainer:
 
         length = len(valid_dataloader)
         losses_all, dsc_scores_all = [None] * length, [None] * length
-        device = self.device
+        # device = self.device
         for i, (frames, masks) in enumerate(valid_dataloader):
-            losses_all[i], dsc_scores_all[i] = validation_step(model, frames.to(device), masks.to(device))
+            losses_all[i], dsc_scores_all[i] = validation_step(model, frames, masks)
         model.train()
 
         return losses_all, dsc_scores_all
@@ -79,14 +74,12 @@ class Trainer:
         freq_info = self.freq_info
         timestamp = None
         device = self.device
-
         model.to(device)
 
         for epoch in range(1, self.max_epochs + 1):
-            logger.info(f'Epoch {epoch} started.')
             loss = None
             for i, (frames, masks) in enumerate(tqdm(train_dataloader, f'epoch {epoch}', leave=False, unit='batches')):
-                loss = training_step(model, frames.to(device), masks.to(device), optimizer)
+                loss = training_step(model, frames, masks, optimizer)
 
             if epoch % freq_info < 1:
                 logger.info(f'Epoch {epoch}: loss = {loss: .5f}')

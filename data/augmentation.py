@@ -32,4 +32,4 @@ class MaskPreprocessing(Module):
         mask = array(mask)
         mask[mask == 2] = 0
         mask[mask == 3] = 1
-        return inpt, Image.fromarray(mask.astype(float))
+        return inpt, Image.fromarray(mask)

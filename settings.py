@@ -2,7 +2,7 @@ from pathlib import Path
 from os import cpu_count
 from models.nn import PetModel
 from models.resunet import ResUNet
-from data.augmentation import CannyEdgeDetection
+from data.augmentation import CannyEdgeDetection, MaskPreprocessing
 from torchvision.transforms.v2 import Compose, Resize, ToImage, ToDtype
 from torch.optim import AdamW
 import torch
@@ -30,6 +30,7 @@ MODEL = ResUNet
 # Fine-tuning
 FINE_TUNING_TRANSFORMS = Compose([
     CannyEdgeDetection(100, 200),
+    MaskPreprocessing(),
     Resize((224, 224)),
     ToImage(),
     ToDtype(torch.float32, scale=True)

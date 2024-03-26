@@ -9,16 +9,9 @@ class CannyEdgeDetection(Module):
         super().__init__()
         self.threshold1 = threshold1
         self.threshold2 = threshold2
-
-    def preprocess_mask(self, mask):
-        mask = array(mask, dtype=float32)
-        mask[mask == 2.0] = 0.0
-        mask[(mask == 1.0) | (mask == 3.0)] = 1.0
-        return Image.fromarray(mask)
     
     def forward(self, inpt: Image.Image, target: Image.Image) -> tuple[Image.Image, Image.Image]:
         image = array(inpt)
-        target = self.preprocess_mask(target)
 
         # Apply Gaussian blur and then use Canny edge detection
         image_blur = GaussianBlur(image, (9, 9), 0)
@@ -31,3 +24,12 @@ class CannyEdgeDetection(Module):
         # Edges -> Original img
         image_with_edges = addWeighted(image, 1., edges_colored_dilated, 1., 0.)
         return Image.fromarray(image_with_edges), target
+
+
+class MaskPreprocessing(Module):
+    @staticmethod
+    def forward(inpt: Image.Image, mask: Image.Image) -> tuple[Image.Image, Image.Image]:
+        mask = array(mask)
+        mask[mask == 2] = 0
+        mask[mask == 3] = 1
+        return inpt, Image.fromarray(mask.astype(float))

@@ -13,7 +13,7 @@ class RightHalfUnet(nn.Module):
     # Channel: 768*2 -> 768 -> 384 -> 192
     # Spatial: 7*7 -> 14*14 -> 28*28 -> 56*56
     
-    def __init__(self, patch_size: int, init_ch = 192, num_levels = 5, out_ch = 1):
+    def __init__(self, patch_size: int, init_ch = 48, num_levels = 5, out_ch = 1):
         super(RightHalfUnet, self).__init__()
         self.patch_size = patch_size
         

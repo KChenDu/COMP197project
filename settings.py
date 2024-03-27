@@ -34,13 +34,6 @@ def SETUP_DEVICE():
         torch.multiprocessing.set_start_method('spawn')
     pass
 
-if torch.cuda.is_available():
-    DEVICE = 'cuda'
-elif torch.backends.mps.is_built():
-    DEVICE = 'mps'
-else:
-    DEVICE = 'cpu'
-
 # Data
 DATA_ROOT = Path("data")
 

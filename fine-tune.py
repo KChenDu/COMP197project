@@ -1,4 +1,3 @@
-import torch
 from settings import (SEED,
                       SETUP_DEVICE,
                       DATA_ROOT,
@@ -11,11 +10,10 @@ from settings import (SEED,
                       FINE_TUNING_MAX_EPOCHS as MAX_EPOCHS,
                       FINE_TUNING_FREQ_INFO as FREQ_INFO,
                       FINE_TUNING_FREQ_SAVE as FREQ_SAVE)
-from torch import manual_seed
-from data.datasets import SimpleOxfordPetDataset
-from torch.utils.data import DataLoader
+from torch import manual_seed, Generator
+from torchvision.datasets import OxfordIIITPet
+from torch.utils.data import random_split, DataLoader
 from utils import Trainer
-from torch import Generator
 
 
 if __name__ == '__main__':
@@ -34,7 +32,7 @@ if __name__ == '__main__':
     # Import the model
     model = MODEL()
     # Define the optimizer
-    optimizer = OPTIMIZER(model.parameters(), lr=1e-4)
+    optimizer = OPTIMIZER(model.parameters())
 
     trainer = Trainer(MAX_EPOCHS, FREQ_INFO, FREQ_SAVE)
     trainer.fit(model, train_dataloader, valid_dataloader, optimizer)

@@ -2,10 +2,12 @@ import torch
 
 from pathlib import Path
 from os import cpu_count
+from torchvision.transforms.v2 import Compose, RandomResizedCrop, ToImage, ToDtype, Resize
+from models.mae import mae_vit_base_patch16_dec512d8b
+from torch.optim import AdamW
 from models.nn import PetModel
-from models.resunet import ResUNet
 from data.augmentation import CannyEdgeDetection, MaskPreprocessing
-from torchvision.transforms.v2 import Compose, Resize, ToImage, ToDtype
+from models.resunet import ResUNet
 
 
 # General
@@ -24,9 +26,19 @@ else:
 # Data
 DATA_ROOT = Path("data")
 
-# Model
-# MODEL = PetModel
-MODEL = ResUNet
+# Pre-training
+PRE_TRAINING_TRANSFORMS = Compose([
+    RandomResizedCrop(224),
+    ToImage(),
+    ToDtype(torch.float32, scale=True)
+])
+PRE_TRAINING_BATCH_SIZE = 16
+PRE_TRAINING_MODEL = mae_vit_base_patch16_dec512d8b
+PRE_TRAINING_OPTIMIZER = AdamW
+PRE_TRAINING_MAX_EPOCHS = 1
+PRE_TRAINING_FREQ_INFO = 1
+PRE_TRAINING_FREQ_SAVE = 100
+MASK_RATIO = .75
 
 # Fine-tuning
 FINE_TUNING_TRANSFORMS = Compose([
@@ -37,7 +49,8 @@ FINE_TUNING_TRANSFORMS = Compose([
     ToDtype(torch.float32, scale=True)
 ])
 FINE_TUNING_BATCH_SIZE = 16
-FINE_TUNING_OPTIMIZER = torch.optim.AdamW
+FINE_TUNING_MODEL = ResUNet
+FINE_TUNING_OPTIMIZER = AdamW
 FINE_TUNING_MAX_EPOCHS = 1
 FINE_TUNING_FREQ_INFO = 1
 FINE_TUNING_FREQ_SAVE = 100

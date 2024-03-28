@@ -2,6 +2,7 @@
 __pycache__
 .idea
 data/oxford-iiit-pet
+data/PetImages
 *images
 *playground.py
 *test.ipynb

@@ -31,6 +31,7 @@ class BaseTrainer(ABC):
         self.max_epochs = max_epochs
         self.freq_info = freq_info
         self.freq_save = freq_save
+        logger.info("device: " + device)
         self.device = torch.device(device)
 
     @staticmethod

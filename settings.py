@@ -5,6 +5,7 @@ from os import cpu_count
 from torchvision.transforms.v2 import Compose, RandomResizedCrop, ToImage, ToDtype, Resize
 from torch import float32
 from models.mae import mae_vit_base_patch16_dec512d8b
+from functools import partial
 from torch.optim import AdamW
 from models.nn import PetModel
 from data.augmentation import CannyEdgeDetection, MaskPreprocessing
@@ -23,7 +24,6 @@ elif torch.backends.mps.is_built():
     DEVICE = 'mps'
 else:
     DEVICE = 'cpu'
-print(f"Using device: {DEVICE}")
 
 # Data
 DATA_ROOT = Path("data")
@@ -36,7 +36,7 @@ PRE_TRAINING_TRANSFORMS = Compose([
 ])
 PRE_TRAINING_BATCH_SIZE = 16
 PRE_TRAINING_MODEL = mae_vit_base_patch16_dec512d8b
-PRE_TRAINING_OPTIMIZER = AdamW
+PRE_TRAINING_OPTIMIZER = partial(AdamW, lr=1.5e-4 * PRE_TRAINING_BATCH_SIZE / 256., weight_decay=.05, betas=(.9, .95))
 PRE_TRAINING_MAX_EPOCHS = 1
 PRE_TRAINING_FREQ_INFO = 1
 PRE_TRAINING_FREQ_SAVE = 100

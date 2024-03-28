@@ -1,6 +1,6 @@
 from settings import (SEED,
                       DATA_ROOT,
-                      PRE_TRAINING_TRANSFORMS as TRANSFORMS,
+                      PRE_TRAINING_TRANSFORM as TRANSFORM,
                       PRE_TRAINING_BATCH_SIZE as BATCH_SIZE,
                       N_CPU,
                       PRE_TRAINING_MODEL as MODEL,
@@ -11,7 +11,8 @@ from settings import (SEED,
                       DEVICE,
                       MASK_RATIO)
 from torch import manual_seed
-from torchvision.datasets import OxfordIIITPet
+from torchvision.datasets import ImageNet
+from data.datasets import KaggleCatsAndDogsDataset
 from torch.utils.data import DataLoader
 from utils import PreTrainer
 
@@ -19,8 +20,9 @@ from utils import PreTrainer
 if __name__ == '__main__':
     manual_seed(SEED)
 
-    # Load the train and validation datasets
-    train_dataset = OxfordIIITPet(DATA_ROOT, target_types='segmentation', transforms=TRANSFORMS, download=True)
+    # Load the train dataset
+    train_dataset = ImageNet(DATA_ROOT, 'val', transform=TRANSFORM)
+    # train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM)
 
     # Create the dataloaders
     train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=N_CPU)

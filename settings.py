@@ -29,7 +29,7 @@ else:
 DATA_ROOT = Path("data")
 
 # Pre-training
-PRE_TRAINING_TRANSFORMS = Compose([
+PRE_TRAINING_TRANSFORM = Compose([
     RandomResizedCrop(224),
     ToImage(),
     ToDtype(float32, scale=True)

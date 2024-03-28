@@ -67,7 +67,7 @@ class PreTrainer(BaseTrainer):
 
         for epoch in range(1, self.max_epochs + 1):
             loss = None
-            for frames, masks in tqdm(train_dataloader, f'epoch {epoch}', leave=False, unit='batches'):
+            for frames, _ in tqdm(train_dataloader, f'epoch {epoch}', leave=False, unit='batches'):
                 loss = training_step(model, frames.to(device), optimizer, mask_ratio)
 
             if epoch % freq_info < 1:

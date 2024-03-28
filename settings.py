@@ -22,6 +22,7 @@ elif torch.backends.mps.is_built():
     DEVICE = 'mps'
 else:
     DEVICE = 'cpu'
+print(f"Using device: {DEVICE}")
 
 # Data
 DATA_ROOT = Path("data")

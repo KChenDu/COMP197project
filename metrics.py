@@ -10,7 +10,7 @@ def dice_score(ps: Tensor, ts: Tensor, eps: float = 1e-7) -> Tensor:
 
 def dice_loss(ps: Tensor, ts: Tensor) -> Tensor:
     assert ps.ndim == 4 and ts.ndim == 4 and ps.size() == ts.size()
-    return 1-dice_score(ps, ts)
+    return 1. - dice_score(ps, ts)
 
 
 def dice_binary(ps: Tensor, ts: Tensor) -> Tensor:

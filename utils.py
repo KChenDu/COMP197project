@@ -21,8 +21,8 @@ def save_fig(fig_id, tight_layout=True, fig_extension="eps", resolution=300):
 
 def pre_process(images: Tensor, labels: Tensor) -> tuple[Tensor, Tensor]:
     # TODO: This part is not a good practice, we'll try to do the dtype conversion in the dataloader
-    images = torch.stack([image.clone().detach() for image in images]).float()
-    labels = torch.stack([label.clone().detach() for label in labels]).float()
+    images = torch.stack([torch.tensor(image) for image in images]).float()
+    labels = torch.stack([torch.tensor(label) for label in labels]).float()
     return images, labels
 
 

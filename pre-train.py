@@ -1,18 +1,16 @@
-import torch
-
 from settings import (SEED,
                       DATA_ROOT,
                       PRE_TRAINING_TRANSFORMS as TRANSFORMS,
                       PRE_TRAINING_BATCH_SIZE as BATCH_SIZE,
                       N_CPU,
-                      DEVICE,
                       PRE_TRAINING_MODEL as MODEL,
                       PRE_TRAINING_OPTIMIZER as OPTIMIZER,
                       PRE_TRAINING_MAX_EPOCHS as MAX_EPOCHS,
                       PRE_TRAINING_FREQ_INFO as FREQ_INFO,
                       PRE_TRAINING_FREQ_SAVE as FREQ_SAVE,
+                      DEVICE,
                       MASK_RATIO)
-from torch import manual_seed, Generator
+from torch import manual_seed
 from torchvision.datasets import OxfordIIITPet
 from torch.utils.data import DataLoader
 from utils import PreTrainer

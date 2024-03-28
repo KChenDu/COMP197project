@@ -3,6 +3,7 @@ import torch
 from pathlib import Path
 from os import cpu_count
 from torchvision.transforms.v2 import Compose, RandomResizedCrop, ToImage, ToDtype, Resize
+from torch import float32
 from models.mae import mae_vit_base_patch16_dec512d8b
 from torch.optim import AdamW
 from models.nn import PetModel
@@ -30,7 +31,7 @@ DATA_ROOT = Path("data")
 PRE_TRAINING_TRANSFORMS = Compose([
     RandomResizedCrop(224),
     ToImage(),
-    ToDtype(torch.float32, scale=True)
+    ToDtype(float32, scale=True)
 ])
 PRE_TRAINING_BATCH_SIZE = 16
 PRE_TRAINING_MODEL = mae_vit_base_patch16_dec512d8b
@@ -46,7 +47,7 @@ FINE_TUNING_TRANSFORMS = Compose([
     MaskPreprocessing(),
     Resize((224, 224)),
     ToImage(),
-    ToDtype(torch.float32, scale=True)
+    ToDtype(float32, scale=True)
 ])
 FINE_TUNING_BATCH_SIZE = 16
 FINE_TUNING_MODEL = ResUNet

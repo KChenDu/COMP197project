@@ -3,12 +3,12 @@ from settings import (SEED,
                       FINE_TUNING_TRANSFORMS as TRANSFORMS,
                       FINE_TUNING_BATCH_SIZE as BATCH_SIZE,
                       N_CPU,
-                      DEVICE,
                       FINE_TUNING_MODEL as MODEL,
                       FINE_TUNING_OPTIMIZER as OPTIMIZER,
                       FINE_TUNING_MAX_EPOCHS as MAX_EPOCHS,
                       FINE_TUNING_FREQ_INFO as FREQ_INFO,
-                      FINE_TUNING_FREQ_SAVE as FREQ_SAVE)
+                      FINE_TUNING_FREQ_SAVE as FREQ_SAVE,
+                      DEVICE)
 from torch import manual_seed
 from torchvision.datasets import OxfordIIITPet
 from torch.utils.data import random_split, DataLoader

@@ -27,22 +27,23 @@ class CannyEdgeDetection(Module):
 
 
 class MaskPreprocessing(Module):
-    @staticmethod
-    def forward(inpt: Image.Image, mask: Image.Image) -> tuple[Image.Image, Image.Image]:
-        mask = array(mask)
-        mask[mask == 2] = 0
-        mask[mask == 3] = 255
-        return inpt, Image.fromarray(mask)
-
-class Remap(Module):
-    def __init__(self, min_val: float, max_val: float):
+    def __init__(self, explicit_edge: bool = False):
         super().__init__()
-        self.min_val = min_val
-        self.max_val = max_val
+        self.explicit_edge = explicit_edge
     
-    def forward(self, input: Image.Image, target: Image.Image) -> tuple[Image.Image, Image.Image]:
-        org_min, org_max = input.getextrema()
-        
-        # Remap the values
-        target = (input - org_min) / (org_max - org_min) * (self.max_val - self.min_val) + self.min_val
-        return target, target
+    def forward(self, inpt: Image.Image, mask: Image.Image) -> tuple[Image.Image, Image.Image]:
+        mask = array(mask)
+        # mask[mask == 3] = 255
+        if self.explicit_edge:
+            # Mask == 1: Edges
+            mask[mask == 1] = 0
+            
+            # Mask == 2: Background
+            mask[mask == 2] = 125
+            
+            # Mask == 3: Foreground
+            mask[mask == 3] = 255
+        else:
+            mask[mask == 2] = 0
+            mask[((mask == 1) | (mask == 3))] = 255
+        return inpt, Image.fromarray(mask)

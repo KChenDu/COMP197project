@@ -56,8 +56,8 @@ MASK_RATIO = .75
 
 # Fine-tuning
 FINE_TUNING_TRANSFORMS = Compose([
-    CannyEdgeDetection(100, 200),
-    MaskPreprocessing(),
+    # CannyEdgeDetection(100, 200),
+    MaskPreprocessing(explicit_edge=False),
     Resize((224, 224)),
     ToImage(),
     ToDtype(float32, scale=True)

@@ -31,5 +31,18 @@ class MaskPreprocessing(Module):
     def forward(inpt: Image.Image, mask: Image.Image) -> tuple[Image.Image, Image.Image]:
         mask = array(mask)
         mask[mask == 2] = 0
-        mask[mask == 3] = 1
+        mask[mask == 3] = 255
         return inpt, Image.fromarray(mask)
+
+class Remap(Module):
+    def __init__(self, min_val: float, max_val: float):
+        super().__init__()
+        self.min_val = min_val
+        self.max_val = max_val
+    
+    def forward(self, input: Image.Image, target: Image.Image) -> tuple[Image.Image, Image.Image]:
+        org_min, org_max = input.getextrema()
+        
+        # Remap the values
+        target = (input - org_min) / (org_max - org_min) * (self.max_val - self.min_val) + self.min_val
+        return target, target

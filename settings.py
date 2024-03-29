@@ -2,12 +2,15 @@ import torch
 
 from pathlib import Path
 from os import cpu_count
+from torchvision.transforms.v2 import Compose, RandomResizedCrop, ToImage, ToDtype, Resize
+from torch import float32
+from models.mae import mae_vit_base_patch16_dec512d8b
+from functools import partial
+from torch.optim import AdamW
 from models.nn import PetModel
-from models.resunet import ResUNet
 from data.augmentation import CannyEdgeDetection, MaskPreprocessing
 from torchvision.transforms.v2 import Compose, Resize, ToImage, ToDtype
 from models.smp_unet import SMPMiTUNet
-from torch.optim import AdamW
 
 # General
 IMAGES_PATH = Path("images")
@@ -25,11 +28,11 @@ else:
     DEVICE = 'cpu'
     print(f"[Using CPU] Found {DEVICE_COUNT} CPU(s) available.")
 
-DEVICE = torch.device(DEVICE)
+# DEVICE = torch.device(DEVICE)
 torch.set_default_device(DEVICE)
 
 def SETUP_DEVICE():
-    if DEVICE.type == 'cuda':
+    if DEVICE == 'cuda':
         torch.backends.cudnn.enabled = True
         torch.multiprocessing.set_start_method('spawn')
     pass
@@ -37,9 +40,19 @@ def SETUP_DEVICE():
 # Data
 DATA_ROOT = Path("data")
 
-# Model
-# MODEL = PetModel
-MODEL = SMPMiTUNet
+# Pre-training
+PRE_TRAINING_TRANSFORM = Compose([
+    RandomResizedCrop(224),
+    ToImage(),
+    ToDtype(float32, scale=True)
+])
+PRE_TRAINING_BATCH_SIZE = 16
+PRE_TRAINING_MODEL = mae_vit_base_patch16_dec512d8b
+PRE_TRAINING_OPTIMIZER = partial(AdamW, lr=1.5e-4 * PRE_TRAINING_BATCH_SIZE / 256., weight_decay=.05, betas=(.9, .95))
+PRE_TRAINING_MAX_EPOCHS = 1
+PRE_TRAINING_FREQ_INFO = 1
+PRE_TRAINING_FREQ_SAVE = 100
+MASK_RATIO = .75
 
 # Fine-tuning
 FINE_TUNING_TRANSFORMS = Compose([
@@ -47,7 +60,7 @@ FINE_TUNING_TRANSFORMS = Compose([
     MaskPreprocessing(),
     Resize((224, 224)),
     ToImage(),
-    ToDtype(torch.float32, scale=True)
+    ToDtype(float32, scale=True)
 ])
 FINE_TUNING_BATCH_SIZE = 16
 FINE_TUNING_MODEL = SMPMiTUNet

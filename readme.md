@@ -32,3 +32,21 @@ python data/download.py
  ```
 then the dataset will appear in `data/oxford-iiit-pet`.
 - **Caution**: Do not push the datasets to code repository. Manage them in [team's OneDrive](https://liveuclac-my.sharepoint.com/:f:/r/personal/ucabkc8_ucl_ac_uk/Documents/COMP197project?csf=1&web=1&e=eHOMTq).
+
+### Cats-vs-Dogs Dataset
+
+- Download the Cats-vs-Dogs dataset. The dataset in placed in the Onedrive folder `data`
+  ```bash
+  https://liveuclac-my.sharepoint.com/personal/ucabkc8_ucl_ac_uk/_layouts/15/onedrive.aspx?csf=1&web=1&e=eHOMTq&cid=b1ca2fff%2D7951%2D475e%2Dbffe%2Ddc90f122de3e&FolderCTID=0x012000125CE7251773044896CBF5C90A6BF230&id=%2Fpersonal%2Fucabkc8%5Fucl%5Fac%5Fuk%2FDocuments%2FCOMP197project%2Fdata%2Fkagglecatsanddogs%5F5340%2Ezip&parent=%2Fpersonal%2Fucabkc8%5Fucl%5Fac%5Fuk%2FDocuments%2FCOMP197project%2Fdata
+  ```
+
+- Unzip the dataset and place it under folder `data`
+
+### ImageNet-1k-valid
+
+- Download the ImageNet-1k-valid dataset. The dataset in placed in the Onedrive folder `data`
+  ```bash
+  https://liveuclac-my.sharepoint.com/:u:/r/personal/ucabkc8_ucl_ac_uk/Documents/COMP197project/data/ILSVRC2012_img_val.tar?csf=1&web=1&e=4YHG26
+  ```
+
+- Unzip the dataset and place it under folder `data`

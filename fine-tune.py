@@ -4,7 +4,7 @@ from settings import (SEED,
                       FINE_TUNING_TRANSFORMS as TRANSFORMS,
                       FINE_TUNING_BATCH_SIZE as BATCH_SIZE,
                       DEVICE_COUNT,
-                      MODEL,
+                      FINE_TUNING_MODEL as MODEL,
                       DEVICE,
                       FINE_TUNING_OPTIMIZER as OPTIMIZER,
                       FINE_TUNING_MAX_EPOCHS as MAX_EPOCHS,
@@ -14,7 +14,7 @@ from torch import manual_seed, Generator, tensor, Tensor
 from torchvision.datasets import OxfordIIITPet
 import torchvision.transforms as transforms
 from torch.utils.data import random_split, DataLoader
-from utils import Trainer
+from utils import FineTuner
 
 import torch
 import numpy as np
@@ -29,6 +29,7 @@ if __name__ == '__main__':
     
     generator = Generator(DEVICE)
     # Load the train and validation datasets
+    # _, train_dataset, valid_dataset = random_split(OxfordIIITPet(DATA_ROOT, target_types='segmentation', transforms=TRANSFORMS, download=True), (.8, .1, .1), generator=generator)
     train_dataset, valid_dataset = random_split(OxfordIIITPet(DATA_ROOT, target_types='segmentation', transforms=TRANSFORMS, download=True), (.9, .1), generator=generator)
 
     # Create the dataloaders
@@ -39,10 +40,11 @@ if __name__ == '__main__':
     model = MODEL()
     # Define the optimizer
     optimizer = OPTIMIZER(model.parameters(), lr=1e-4, weight_decay=1.6e-4)
-    trainer = Trainer(MAX_EPOCHS, FREQ_INFO, FREQ_SAVE)
+
+    finetuner = FineTuner(MAX_EPOCHS, FREQ_INFO, FREQ_SAVE, DEVICE)
     
     if TRAIN:
-        trainer.fit(model, train_dataloader, valid_dataloader, optimizer)
+        finetuner.fit(model, train_dataloader, valid_dataloader, optimizer)
         torch.save(model.state_dict(), 'model.pth')
     else:
         model.load_state_dict(torch.load('model.pth'))
@@ -61,3 +63,4 @@ if __name__ == '__main__':
     pred_img = transforms.ToPILImage()(prediction.squeeze(0).cpu().detach())
     org_img.save('original.png')
     pred_img.save('prediction.png')
+

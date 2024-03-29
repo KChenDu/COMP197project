@@ -6,8 +6,8 @@ from models.nn import PetModel
 from models.resunet import ResUNet
 from data.augmentation import CannyEdgeDetection, MaskPreprocessing
 from torchvision.transforms.v2 import Compose, Resize, ToImage, ToDtype
-
-from models.MAEncoder import ViTMaskAutoEncoder
+from models.smp_unet import SMPMiTUNet
+from torch.optim import AdamW
 
 # General
 IMAGES_PATH = Path("images")
@@ -39,7 +39,7 @@ DATA_ROOT = Path("data")
 
 # Model
 # MODEL = PetModel
-MODEL = ViTMaskAutoEncoder
+MODEL = SMPMiTUNet
 
 # Fine-tuning
 FINE_TUNING_TRANSFORMS = Compose([
@@ -50,8 +50,9 @@ FINE_TUNING_TRANSFORMS = Compose([
     ToDtype(torch.float32, scale=True)
 ])
 FINE_TUNING_BATCH_SIZE = 16
-FINE_TUNING_OPTIMIZER = torch.optim.AdamW
-FINE_TUNING_MAX_EPOCHS = 20
+FINE_TUNING_MODEL = SMPMiTUNet
+FINE_TUNING_OPTIMIZER = AdamW
+FINE_TUNING_MAX_EPOCHS = 1
 FINE_TUNING_FREQ_INFO = 1
 FINE_TUNING_FREQ_SAVE = 100
 

@@ -36,7 +36,7 @@ if __name__ == '__main__':
     valid_dataloader = DataLoader(valid_dataset, BATCH_SIZE, num_workers=DEVICE_COUNT, generator=generator)
 
     # Import the model
-    model = MODEL(drop_path_rate=0.1)
+    model = MODEL()
     # Define the optimizer
     optimizer = OPTIMIZER(model.parameters(), lr=1e-4, weight_decay=1.6e-4)
     trainer = Trainer(MAX_EPOCHS, FREQ_INFO, FREQ_SAVE)

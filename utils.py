@@ -76,12 +76,16 @@ class PreTrainer(BaseTrainer):
             if epoch % freq_save < 1:
                 if timestamp is None:
                     timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+                
+                save_dir = MODEL_CHECKPOINTS_PATH / name / timestamp
+                save_dir.mkdir(parents=True, exist_ok=True)
+
                 torch.save({
                     'epoch': epoch,
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
                     'loss': loss
-                }, MODEL_CHECKPOINTS_PATH / name / timestamp / f'epoch_{epoch: d}')
+                }, save_dir / f'epoch_{epoch: d}')
                 logger.info('Model saved.')
 
 

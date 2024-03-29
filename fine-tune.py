@@ -53,14 +53,14 @@ if __name__ == '__main__':
     # losses = [torch.mean(loss).item() for loss in losses]
     # print(f'average_loss: {np.mean(losses)}')
     
-    random_img = next(iter(valid_dataloader))[0][0]
-    random_img = random_img.unsqueeze(0).to(DEVICE)
-    prediction = model(random_img)
-    print(prediction.shape)
+    # random_img = next(iter(valid_dataloader))[0][0]
+    # random_img = random_img.unsqueeze(0).to(DEVICE)
+    # prediction = model(random_img)
+    # print(prediction.shape)
     
-    # Save the image
-    org_img = transforms.ToPILImage()(random_img.squeeze(0).cpu().detach())
-    pred_img = transforms.ToPILImage()(prediction.squeeze(0).cpu().detach())
-    org_img.save('original.png')
-    pred_img.save('prediction.png')
+    # # Save the image
+    # org_img = transforms.ToPILImage()(random_img.squeeze(0).cpu().detach())
+    # pred_img = transforms.ToPILImage()(prediction.squeeze(0).cpu().detach())
+    # org_img.save('original.png')
+    # pred_img.save('prediction.png')
 

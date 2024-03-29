@@ -35,4 +35,4 @@ def accuracy(ps: Tensor, ts: Tensor) -> Tensor:
     ps = torch.round(ps).type(torch.int)
     ts = torch.round(ts).type(torch.int)
     eqs = (ps == ts).type_as(ps)
-    return sum(eqs, dim=(1, 2, 3)) / ts.numel()
+    return sum(eqs, dim=(1, 2, 3)) / ts[0].numel()

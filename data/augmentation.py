@@ -30,6 +30,7 @@ class MaskPreprocessing(Module):
     @staticmethod
     def forward(inpt: Image.Image, mask: Image.Image) -> tuple[Image.Image, Image.Image]:
         mask = array(mask)
+        mask[mask == 1] = 255
         mask[mask == 2] = 0
-        mask[mask == 3] = 255
+        mask[mask == 3] = 127
         return inpt, Image.fromarray(mask)

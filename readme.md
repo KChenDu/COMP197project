@@ -31,7 +31,6 @@ Run the following command in project root directory:
 python data/download.py
  ```
 then the dataset will appear in `data/oxford-iiit-pet`.
-- **Caution**: Do not push the datasets to code repository. Manage them in [team's OneDrive](https://liveuclac-my.sharepoint.com/:f:/r/personal/ucabkc8_ucl_ac_uk/Documents/COMP197project?csf=1&web=1&e=eHOMTq).
 
 ### Cats-vs-Dogs Dataset
 
@@ -40,3 +39,4 @@ then the dataset will appear in `data/oxford-iiit-pet`.
 ### ImageNet-1k-valid
 
 [Download](https://liveuclac-my.sharepoint.com/:f:/g/personal/ucabkc8_ucl_ac_uk/EtmYnd5lrbpDq7DJmxivmRQBTnyuzem_Avu2T4p7glxcrA?e=84ciAG) `ILSVRC2012_devkit_t12.tar.gz` and `ILSVRC2012_img_val.tar.gz`, then place them in `data` directory.
+- **Caution**: Do not push the datasets to code repository. Manage them in [team's OneDrive](https://liveuclac-my.sharepoint.com/:f:/r/personal/ucabkc8_ucl_ac_uk/Documents/COMP197project?csf=1&web=1&e=Un65WF).

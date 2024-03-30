@@ -21,8 +21,8 @@ if __name__ == '__main__':
     manual_seed(SEED)
 
     # Load the train dataset
-    train_dataset = ImageNet(DATA_ROOT, 'val', transform=TRANSFORM)
-    # train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM)
+    # train_dataset = ImageNet(DATA_ROOT, 'val', transform=TRANSFORM)
+    train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM)
 
     # Create the dataloaders
     train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=N_CPU)
@@ -32,5 +32,5 @@ if __name__ == '__main__':
     # Define the optimizer
     optimizer = OPTIMIZER(model.parameters())
 
-    finetuner = PreTrainer(MAX_EPOCHS, FREQ_INFO, FREQ_SAVE, DEVICE)
-    finetuner.fit(model, train_dataloader, optimizer, MASK_RATIO)
+    pretrainer = PreTrainer(MAX_EPOCHS, FREQ_INFO, FREQ_SAVE, DEVICE)
+    pretrainer.fit(model, train_dataloader, optimizer, MASK_RATIO)

@@ -1,5 +1,4 @@
 import torch
-import numpy as np
 
 from torch.utils.data import DataLoader
 from settings import IMAGES_PATH, DEVICE
@@ -232,6 +231,7 @@ class FineTuner(BaseTrainer):
                     'loss': loss
                 }, MODEL_CHECKPOINTS_PATH / name / timestamp / f'epoch_{epoch: d}')
                 logger.info('Model saved.')
+
 
 class Tester:
     def __init__(self):

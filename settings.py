@@ -2,15 +2,17 @@ import torch
 
 from pathlib import Path
 from os import cpu_count
-from torchvision.transforms.v2 import Compose, RandomResizedCrop, ToImage, ToDtype, Resize
+from torchvision.transforms import InterpolationMode
+from torchvision.transforms.v2 import Compose, RandomResizedCrop, RandomHorizontalFlip, ToImage, Normalize, ToDtype, Resize
 from torch import float32
 from models.mae import mae_vit_base_patch16_dec512d8b
 from functools import partial
 from torch.optim import AdamW
 from models.nn import PetModel
 from data.augmentation import CannyEdgeDetection, MaskPreprocessing
-from torchvision.transforms.v2 import Compose, Resize, ToImage, ToDtype
+from models.resunet import ResUNet
 from models.smp_unet import SMPMiTUNet
+
 
 # General
 IMAGES_PATH = Path("images")
@@ -28,23 +30,25 @@ else:
     DEVICE = 'cpu'
     print(f"[Using CPU] Found {DEVICE_COUNT} CPU(s) available.")
 
-# DEVICE = torch.device(DEVICE)
 torch.set_default_device(DEVICE)
 
-def SETUP_DEVICE():
+
+def setup_device():
     if DEVICE == 'cuda':
         torch.backends.cudnn.enabled = True
         torch.multiprocessing.set_start_method('spawn')
-    pass
+
 
 # Data
 DATA_ROOT = Path("data")
 
 # Pre-training
 PRE_TRAINING_TRANSFORM = Compose([
-    RandomResizedCrop(224),
+    RandomResizedCrop(224, (.2, 1.), interpolation=InterpolationMode.BICUBIC),
+    RandomHorizontalFlip(),
     ToImage(),
-    ToDtype(float32, scale=True)
+    ToDtype(float32),
+    Normalize((.485, .456, .406), (.229, .224, .225))
 ])
 PRE_TRAINING_BATCH_SIZE = 16
 PRE_TRAINING_MODEL = mae_vit_base_patch16_dec512d8b
@@ -64,7 +68,7 @@ FINE_TUNING_TRANSFORMS = Compose([
 ])
 FINE_TUNING_BATCH_SIZE = 16
 FINE_TUNING_MODEL = SMPMiTUNet
-FINE_TUNING_OPTIMIZER = AdamW
+FINE_TUNING_OPTIMIZER = partial(AdamW, lr=1e-4, weight_decay=1.6e-4)
 FINE_TUNING_MAX_EPOCHS = 1
 FINE_TUNING_FREQ_INFO = 1
 FINE_TUNING_FREQ_SAVE = 100

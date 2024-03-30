@@ -7,8 +7,11 @@ from torch.utils.data import DataLoader
 from models.ViT import *
 from models.MADecoder import RightHalfUnet
 
+@DeprecationWarning
 class ViTMaskAutoEncoder(nn.Module):
-    
+    '''
+    This model is deprecated, this model structure is considered risky and the implementation is incomplete. Please do not use this model.
+    '''
     def __init__(self,
                 img_size=1024,
                 patch_size=16,
@@ -17,7 +20,7 @@ class ViTMaskAutoEncoder(nn.Module):
                 num_heads=12,
                 mlp_ratio=4.0,
                 qkv_bias=True,
-                drop_path_rate=0.0,
+                drop_path_rate=0.1,
                 norm_layer=nn.LayerNorm,
                 act_layer=nn.GELU,
                 use_abs_pos=True,

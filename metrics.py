@@ -20,7 +20,7 @@ def dice_binary(ps: Tensor, ts: Tensor) -> Tensor:
     ts = (ts >= .5).type_as(ts)
     return dice_score(ps, ts)
 
-def accuracy(ps: Tensor, ts: Tensor) -> Tensor:
+def segment_accuracy(ps: Tensor, ts: Tensor) -> Tensor:
     '''
     Calculate the accuracy of the model.
     

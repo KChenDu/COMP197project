@@ -10,3 +10,8 @@ data/val
 *images
 *playground.py
 *test.ipynb
+**/*.pt
+**/*.pth
+*.pt
+*.pth
+.vscode

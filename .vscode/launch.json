@@ -5,10 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Module",
+            "name": "Python: Fine-tune",
             "type": "debugpy",
             "request": "launch",
             "module": "fine-tune"
+        },
+        {
+            "name": "Python: Pre-train",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pre-train"
         }
     ]
 }

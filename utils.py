@@ -6,7 +6,7 @@ from settings import IMAGES_PATH, DEVICE
 from matplotlib import pyplot as plt
 from torch import Tensor, no_grad, mean
 from abc import ABC, abstractmethod
-from metrics import dice_loss, dice_binary, dice_score, accuracy
+from metrics import dice_loss, dice_binary, dice_score, segment_accuracy
 from tqdm import tqdm
 from loguru import logger
 from datetime import datetime
@@ -64,9 +64,18 @@ class BaseTrainer(ABC):
         save_fig('sdc_score_vs_epoch')
         plt.show()
         
-    def draw_predictions(self, model: torch.nn.Module, valid_dataloader: DataLoader, print_info=False, save_img=True, tag=''):
+    def draw_predictions(self, model: torch.nn.Module, valid_dataloader: DataLoader, print_info=False, save_img=True, max_samples = 16, tag=''):
         
             frames, masks = next(iter(valid_dataloader))
+            
+            num_samples = frames.size(0)
+            
+            if num_samples > max_samples:
+                num_samples = max_samples
+                frames = frames[:num_samples]
+                masks = masks[:num_samples]
+                predicts = predicts[:num_samples]
+            
             frames, masks = frames.to(self.device), masks.to(self.device)
             frames, masks = pre_process(frames, masks)
             predicts = model(frames)
@@ -74,10 +83,9 @@ class BaseTrainer(ABC):
             extra_info = {}
             if print_info:
                 extra_info['loss'] = dice_loss(predicts, masks)
-                extra_info['accuracy'] = accuracy(predicts, masks)
+                extra_info['accuracy'] = segment_accuracy(predicts, masks)
                 extra_info['dice_score'] = dice_score(predicts, masks)
             
-            num_samples = frames.size(0)
             fig, axs = plt.subplots(num_samples, 4, figsize=(12, 3*num_samples))
             for j in range(num_samples):
                 axs[j, 0].imshow(frames[j].cpu().numpy().transpose(1, 2, 0))
@@ -132,7 +140,7 @@ class PreTrainer(BaseTrainer):
             loss = None
             for frames, _ in tqdm(train_dataloader, f'epoch {epoch}', leave=False, unit='batches'):
                 loss = training_step(model, frames.to(device), optimizer, mask_ratio)
-
+                
             if epoch % freq_info < 1:
                 logger.info(f'Epoch {epoch}: loss = {loss: .5f}')
 
@@ -156,7 +164,7 @@ class FineTuner(BaseTrainer):
     def training_step(model, images: Tensor, labels: Tensor, optimizer) -> Tensor:
         images, labels = pre_process(images, labels)
         loss = mean(dice_loss(model(images), labels))
-        acc = mean(accuracy(model(images), labels))
+        acc = mean(segment_accuracy(model(images), labels))
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -167,7 +175,7 @@ class FineTuner(BaseTrainer):
         images, labels = pre_process(images, labels)
         predicts = model(images)
         loss = dice_binary(predicts, labels)
-        acc = accuracy(predicts, labels)
+        acc = segment_accuracy(predicts, labels)
         return loss, acc
 
     @no_grad()

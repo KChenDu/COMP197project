@@ -8,7 +8,12 @@ from torch.nn import Module, Parameter
 import models.resunet as resunet
 from models.ViT import *
 
+
+@DeprecationWarning
 class RightHalfUnet(nn.Module):
+    '''
+    This model is deprecated, this model structure is considered risky and the implementation is incomplete. Please do not use this model.
+    '''
     
     # Channel: 768*2 -> 768 -> 384 -> 192
     # Spatial: 7*7 -> 14*14 -> 28*28 -> 56*56
@@ -37,8 +42,3 @@ class RightHalfUnet(nn.Module):
         
         x = self.output(x)
         return x
-        
-        
-        
-
-        

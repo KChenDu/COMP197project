@@ -6,8 +6,13 @@ data/oxford-iiit-pet
 data/PetImages
 data/ILSVRC2012_devkit_t12.tar.gz
 data/ILSVRC2012_img_val.tar
+data/kagglecatsanddogs_5340.zip
 data/meta.bin
 data/val
 *images
 *playground.py
 *test.ipynb
+**/*.pt
+**/*.pth
+*.pt
+*.pth

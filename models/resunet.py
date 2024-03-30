@@ -66,6 +66,8 @@ class ResUNet(nn.Module):
         self.decoder = nn.ModuleList([_ResNetBlock(2**i * init_ch, 'up') for i in range(num_levels, 0, -1)])
         self.decoder.append(_ResNetBlock(init_ch, 'none')) #None Type
         self.out_layer = _Conv2DLayer(init_ch, out_ch, is_output=True)
+        
+        
 
     def forward(self, x):
         x = self.first_layer(x)

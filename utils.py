@@ -1,4 +1,5 @@
 import torch
+import logging
 
 from torch.utils.data import DataLoader
 from settings import IMAGES_PATH, DEVICE
@@ -8,10 +9,33 @@ from abc import ABC, abstractmethod
 from metrics import dice_loss, dice_binary, dice_score, segment_accuracy
 from models.util.lr_sched import adjust_learning_rate
 from tqdm import tqdm
-from loguru import logger
 from datetime import datetime
 from settings import MODEL_CHECKPOINTS_PATH
 from torchvision.utils import save_image
+
+
+def setup_logger(file_handler_path):
+    LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
+    
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+    
+    console_handler = logging.StreamHandler()
+    file_handler = logging.FileHandler(file_handler_path)
+    
+    console_handler.setLevel(logging.INFO)
+    file_handler.setLevel(logging.INFO)
+    
+    formatter = logging.Formatter(LOG_FORMAT)
+    console_handler.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
+    
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+    return logger
 
 
 def save_fig(fig_id, tight_layout=True, fig_extension="png", resolution=300):
@@ -34,7 +58,7 @@ class BaseTrainer(ABC):
         self.max_epochs = max_epochs
         self.freq_info = freq_info
         self.freq_save = freq_save
-        logger.info("device: " + device)
+
         self.device = torch.device(device)
 
     def plot_accuracy(self, accuracies: list[float]) -> None:
@@ -118,6 +142,8 @@ class BaseTrainer(ABC):
 class PreTrainer(BaseTrainer):
     def __init__(self, max_epochs: int = 1, freq_info: int = 1, freq_save: int = 100, device: str = DEVICE):
         super().__init__(max_epochs, freq_info, freq_save, device)
+        self.logger = setup_logger('log/pre-training.log')        
+        self.logger.info("device: " + device)
 
     @staticmethod
     def training_step(model, images: Tensor, optimizer, mask_ratio: float) -> Tensor:
@@ -145,7 +171,7 @@ class PreTrainer(BaseTrainer):
                 loss = training_step(model, frames.to(device), optimizer, mask_ratio)
 
             if epoch % freq_info < 1:
-                logger.info(f'Epoch {epoch}: loss = {loss: .5f}')
+                self.logger.info(f'Epoch {epoch}: loss = {loss: .5f}')
 
             if epoch % freq_save < 1:
                 if timestamp is None:
@@ -160,12 +186,14 @@ class PreTrainer(BaseTrainer):
                     'optimizer_state_dict': optimizer.state_dict(),
                     'loss': loss
                 }, save_dir / f'epoch_{epoch: d}')
-                logger.info('Model saved.')
+                self.logger.info('Model saved.')
 
 
 class FineTuner(BaseTrainer):
     def __init__(self, max_epochs: int = 1, freq_info: int = 1, freq_save: int = 100, device: str = DEVICE):
         super().__init__(max_epochs, freq_info, freq_save, device)
+        self.logger = setup_logger('log/finetuning.log')
+        self.logger.info("device: " + device)
 
     @staticmethod
     def training_step(model, images: Tensor, labels: Tensor, optimizer) -> Tensor:
@@ -216,7 +244,7 @@ class FineTuner(BaseTrainer):
                 loss, acc = training_step(model, frames.to(device), masks.to(device), optimizer)
 
             if epoch % freq_info < 1:
-                logger.info(f'Epoch {epoch}: loss = {loss: .5f}, accuracy = {acc: .5f}')
+                self.logger.info(f'Epoch {epoch}: loss = {loss: .5f}, accuracy = {acc: .5f}')
 
             self.draw_predictions(model, valid_dataloader, print_info=True, save_img=True, tag=epoch)
 
@@ -224,7 +252,7 @@ class FineTuner(BaseTrainer):
                 losses_all, acc_all = validate(model, valid_dataloader)
                 val_loss = mean(torch.tensor(losses_all))
                 val_mean = mean(torch.tensor(acc_all))
-                logger.info(f'Epoch {epoch}: val-loss = {val_loss: .5f}, val-accuracy = {val_mean: .5f}')
+                self.logger.info(f'Epoch {epoch}: val-loss = {val_loss: .5f}, val-accuracy = {val_mean: .5f}')
                 
                 if timestamp is None:
                     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -234,7 +262,7 @@ class FineTuner(BaseTrainer):
                     'optimizer_state_dict': optimizer.state_dict(),
                     'loss': loss
                 }, MODEL_CHECKPOINTS_PATH / name / timestamp / f'epoch_{epoch: d}')
-                logger.info('Model saved.')
+                self.logger.info('Model saved.')
 
         
 class Tester:

@@ -233,13 +233,30 @@ class FineTuner(BaseTrainer):
                 logger.info('Model saved.')
 
 
+        
 class Tester:
-    def __init__(self):
-        # TODO: add configurable parameters for tester
-        pass
-
-    @staticmethod
+    def __init__(self, device: str = DEVICE):
+        self.device = torch.device(device)
+        
     @no_grad()
-    def test(model, test_dataloader) -> float:
-        # TODO: implement this (might be similar to Trainer.validate)
-        return 1.
+    def test(self, model, test_dataloader) -> tuple[float, float]:
+        model.eval()  
+        device = self.device
+        total_loss, total_accuracy = [], []
+
+        for frames_test, masks_test in tqdm(test_dataloader, desc='Testing', unit='batches'):
+            
+            frames_test, masks_test = pre_process(frames_test, masks_test)
+            frames_test, masks_test = frames_test.to(device), masks_test.to(device)
+
+            predicts_test = model(frames_test)
+            total_loss += [mean(dice_loss(predicts_test, masks_test))]
+            total_accuracy += [mean(dice_binary(predicts_test, masks_test))]
+
+        avg_loss = mean(torch.tensor(total_loss))
+        avg_accuracy = mean(torch.tensor(total_accuracy))
+
+        model.train()  
+        return avg_loss, avg_accuracy
+
+        

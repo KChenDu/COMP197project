@@ -4,7 +4,8 @@ from settings import (SEED,
                       DATA_ROOT,
                       PRE_TRAINING_TRANSFORM as TRANSFORM,
                       PRE_TRAINING_BATCH_SIZE as BATCH_SIZE,
-                      DEVICE_COUNT,
+                      NUM_WORKERS,
+                      PIN_MEMORY,
                       PRE_TRAINING_MODEL as MODEL,
                       PRE_TRAINING_OPTIMIZER as OPTIMIZER,
                       PRE_TRAINING_MAX_EPOCHS as MAX_EPOCHS,
@@ -23,11 +24,11 @@ if __name__ == '__main__':
     setup_device()
 
     # Load the train dataset
-    # train_dataset = ImageNet(DATA_ROOT, 'val', transform=TRANSFORM)
+    # train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM, num_samples=1000)
     train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM)
 
     # Create the dataloaders
-    train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=DEVICE_COUNT, generator=Generator(device=DEVICE))
+    train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, generator=Generator(device=DEVICE), pin_memory=PIN_MEMORY)
 
     # Import the model
     model = MODEL()

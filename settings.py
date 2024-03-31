@@ -18,17 +18,19 @@ from models.smp_unet import SMPMiTUNet
 IMAGES_PATH = Path("images")
 MODEL_CHECKPOINTS_PATH = Path("models/checkpoints")
 SEED = 42
-DEVICE_COUNT = cpu_count()
+NUM_WORKERS = cpu_count()
+PIN_MEMORY = False
 
 if torch.cuda.is_available():
-    DEVICE_COUNT = torch.cuda.device_count()
+    NUM_WORKERS = 0 # turn off multi-processing because of CUDA is not very compatible with it
+    # PIN_MEMORY = True # PyTorch recommends to enable pin_memory when using CUDA, but we are using custom type, so it need additional handling
     DEVICE = "cuda"
-    print(f"[Using CUDA] Found {DEVICE_COUNT} GPU(s) available.")
+    print(f"[Using CUDA] Found {NUM_WORKERS} GPU(s) available.")
 elif torch.backends.mps.is_built():
     DEVICE = 'mps'
 else:
     DEVICE = 'cpu'
-    print(f"[Using CPU] Found {DEVICE_COUNT} CPU(s) available.")
+    print(f"[Using CPU] Found {NUM_WORKERS} CPU(s) available.")
 
 torch.set_default_device(DEVICE)
 

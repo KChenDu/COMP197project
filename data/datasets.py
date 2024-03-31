@@ -8,7 +8,7 @@ from PIL.Image import fromarray
 
 class KaggleCatsAndDogsDataset(Dataset):
     """Kaggle Cats and Dogs Dataset"""
-    def __init__(self, root_dir: str, transform=None):
+    def __init__(self, root_dir: str, transform=None, num_samples: int = None):
         """
         Arguments:
             root_dir (str): Directory with all the images.
@@ -16,6 +16,9 @@ class KaggleCatsAndDogsDataset(Dataset):
         """
         self.transform = transform
         self.image_paths = list(Path(root_dir).glob('PetImages/**/*.jpg'))  # Assuming images are stored as .jpg
+        
+        if num_samples is not None:
+            self.image_paths = self.image_paths[:num_samples]
 
     def __len__(self):
         return len(self.image_paths)

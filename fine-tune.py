@@ -4,7 +4,7 @@ from settings import (SEED,
                       DATA_ROOT,
                       FINE_TUNING_TRANSFORMS as TRANSFORMS,
                       FINE_TUNING_BATCH_SIZE as BATCH_SIZE,
-                      DEVICE_COUNT,
+                      NUM_WORKERS,
                       FINE_TUNING_MODEL as MODEL,
                       FINE_TUNING_OPTIMIZER as OPTIMIZER,
                       FINE_TUNING_MAX_EPOCHS as MAX_EPOCHS,
@@ -32,8 +32,8 @@ if __name__ == '__main__':
         generator=generator)
 
     # Create the dataloaders
-    train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=DEVICE_COUNT, generator=generator)
-    valid_dataloader = DataLoader(valid_dataset, BATCH_SIZE, num_workers=DEVICE_COUNT, generator=generator)
+    train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, generator=generator)
+    valid_dataloader = DataLoader(valid_dataset, BATCH_SIZE, num_workers=NUM_WORKERS, generator=generator)
 
     # Import the model
     model = MODEL()

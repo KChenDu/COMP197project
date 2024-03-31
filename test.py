@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from settings import OxfordIIITPet_DATA_ROOT, TESTING_BATCH_SIZE as BATCH_SIZE, DEVICE_COUNT, MODEL
+from settings import OxfordIIITPet_DATA_ROOT, TESTING_BATCH_SIZE as BATCH_SIZE, NUM_WORKERS, MODEL
 from data.datasets import SimpleOxfordPetDataset
 from torch.utils.data import DataLoader
 from torch import load
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     test_dataset = SimpleOxfordPetDataset(OxfordIIITPet_DATA_ROOT, "test")
 
     # Create the dataloader
-    test_dataloader = DataLoader(test_dataset, BATCH_SIZE, num_workers=DEVICE_COUNT)
+    test_dataloader = DataLoader(test_dataset, BATCH_SIZE, num_workers=NUM_WORKERS)
 
     # Import the model
     model = MODEL()

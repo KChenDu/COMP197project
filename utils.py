@@ -1,5 +1,5 @@
 import torch
-
+import math
 from torch.utils.data import DataLoader
 from settings import IMAGES_PATH, DEVICE
 from matplotlib import pyplot as plt
@@ -20,13 +20,25 @@ def save_fig(fig_id, tight_layout=True, fig_extension="png", resolution=300):
         plt.tight_layout()
     plt.savefig(path, format=fig_extension)
 
-
 def pre_process(images: Tensor, labels: Tensor) -> tuple[Tensor, Tensor]:
     # TODO: This part is not a good practice, we'll try to do the dtype conversion in the dataloader
     images = torch.stack([torch.tensor(image) for image in images]).float()
     labels = torch.stack([torch.tensor(label) for label in labels]).float()
     return images, labels
 
+def adjust_learning_rate(optimizer, epoch, args):
+    """Decay the learning rate with half-cycle cosine after warmup"""
+    if epoch < args['warmup_epochs']:
+        lr = args['lr'] * epoch / args['warmup_epochs']
+    else:
+        lr = args['min_lr'] + (args['lr'] - args['min_lr']) * 0.5 * \
+            (1. + math.cos(math.pi * (epoch - args['warmup_epochs']) / (args['epochs'] - args['warmup_epochs'])))
+    for param_group in optimizer.param_groups:
+        if "lr_scale" in param_group:
+            param_group["lr"] = lr * param_group["lr_scale"]
+        else:
+            param_group["lr"] = lr
+    return lr
 
 class BaseTrainer(ABC):
     def __init__(self, max_epochs: int = 1, freq_info: int = 1, freq_save: int = 100, device: str = DEVICE):
@@ -117,6 +129,9 @@ class BaseTrainer(ABC):
 class PreTrainer(BaseTrainer):
     def __init__(self, max_epochs: int = 1, freq_info: int = 1, freq_save: int = 100, device: str = DEVICE):
         super().__init__(max_epochs, freq_info, freq_save, device)
+        self.lr = 0.001
+        self.min_lr = 0.0001
+        self.warmup_epochs = 40
 
     @staticmethod
     def training_step(model, images: Tensor, optimizer, mask_ratio: float) -> Tensor:
@@ -127,6 +142,15 @@ class PreTrainer(BaseTrainer):
         return loss
 
     def fit(self, model, train_dataloader, optimizer, mask_ratio: float):
+
+        # LR scheduler
+        args = {
+            'lr': self.lr,
+            'min_lr': self.min_lr,
+            'warmup_epochs': self.warmup_epochs,
+            'epochs': self.max_epochs
+        }
+               
         name = type(model).__name__
         training_step = self.training_step
         freq_save = self.freq_save
@@ -135,11 +159,16 @@ class PreTrainer(BaseTrainer):
         device = self.device
         model.to(device)
 
+        current_iteration = 0
+
         for epoch in range(1, self.max_epochs + 1):
             loss = None
-            for frames, _ in tqdm(train_dataloader, f'epoch {epoch}', leave=False, unit='batches'):
+            for frames, _ in tqdm(train_dataloader, f'Epoch {epoch}', leave=False, unit='batches'):
+                # Adjust learning rate per iteration
+                adjust_learning_rate(optimizer, current_iteration / len(train_dataloader) + epoch, args)
+                current_iteration += 1
                 loss = training_step(model, frames.to(device), optimizer, mask_ratio)
-                
+
             if epoch % freq_info < 1:
                 logger.info(f'Epoch {epoch}: loss = {loss: .5f}')
 
@@ -157,7 +186,6 @@ class PreTrainer(BaseTrainer):
                     'loss': loss
                 }, save_dir / f'epoch_{epoch: d}')
                 logger.info('Model saved.')
-
 
 class FineTuner(BaseTrainer):
     def __init__(self, max_epochs: int = 1, freq_info: int = 1, freq_save: int = 100, device: str = DEVICE):

@@ -27,5 +27,5 @@ if __name__ == '__main__':
     model.load_state_dict(load(args.model_checkpoint)['model_state_dict'])
 
     tester = Tester()
-    metric = tester.test(model, test_dataloader)
-    logger.info(f"result: {metric}")
+    avg_loss, avg_accuracy = tester.test(model, test_dataloader)
+    logger.info(f'For testing: val-- loss = {avg_loss: .5f}, val-- DSC = {avg_accuracy: .5f}')

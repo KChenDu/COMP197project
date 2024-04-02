@@ -32,6 +32,8 @@ if __name__ == '__main__':
     train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM, num_samples=1000)
     # train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM)
 
+    # train_dataset = ImageNet(DATA_ROOT, 'val', transform=TRANSFORM)
+
     # Create the dataloaders
     train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, generator=Generator(device=DEVICE), pin_memory=PIN_MEMORY)
 

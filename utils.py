@@ -162,14 +162,16 @@ class PreTrainer(BaseTrainer):
         device = self.device
         model.to(device)
         length = len(train_dataloader)
-
+        losses = []
+        
         for epoch in range(1, self.max_epochs + 1):
             loss = None
             for data_iter_step, (frames, _) in enumerate(tqdm(train_dataloader, f'Epoch {epoch}', leave=False, unit='batches')):
                 # we use a per iteration (instead of per epoch) lr scheduler
                 adjust_learning_rate(optimizer, data_iter_step / length + epoch, args)
                 loss = training_step(model, frames.to(device), optimizer, mask_ratio)
-
+            losses.append(loss)
+            
             if epoch % freq_info < 1:
                 self.logger.info(f'Epoch {epoch}: loss = {loss: .5f}')
 
@@ -184,7 +186,8 @@ class PreTrainer(BaseTrainer):
                     'epoch': epoch,
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
-                    'loss': loss
+                    'loss': loss,
+                    'losses': losses
                 }, save_dir / f'epoch_{epoch: d}')
                 self.logger.info('Model saved.')
 

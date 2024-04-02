@@ -21,7 +21,7 @@ NUM_WORKERS = cpu_count()
 PIN_MEMORY = False
 
 if torch.cuda.is_available():
-    NUM_WORKERS = 0 # turn off multi-processing because of CUDA is not very compatible with it
+    NUM_WORKERS = 0  # turn off multi-processing because of CUDA is not very compatible with it
     # PIN_MEMORY = True # PyTorch recommends to enable pin_memory when using CUDA, but we are using custom type, so it need additional handling
     DEVICE = "cuda"
     print(f"[Using CUDA] Found {NUM_WORKERS} GPU(s) available.")
@@ -54,11 +54,18 @@ PRE_TRAINING_TRANSFORM = Compose([
 PRE_TRAINING_BATCH_SIZE = 50
 PRE_TRAINING_MODEL = MaskedAutoencoderViT
 # PRE_TRAINING_MODEL = mae_vit_base_patch16_dec512d8b
-PRE_TRAINING_OPTIMIZER = partial(AdamW, lr=1.5e-4 * PRE_TRAINING_BATCH_SIZE / 256., weight_decay=.05, betas=(.9, .95))
+LR = 1.5e-4 * PRE_TRAINING_BATCH_SIZE / 256.
+PRE_TRAINING_OPTIMIZER = partial(AdamW, lr=LR, weight_decay=.05, betas=(.9, .95))
 PRE_TRAINING_MAX_EPOCHS = 1
 PRE_TRAINING_FREQ_INFO = 1
-PRE_TRAINING_FREQ_SAVE = 50
+PRE_TRAINING_FREQ_SAVE = 100
 MASK_RATIO = .75
+LR_SCHED_ARGS = {
+    "warmup_epochs": 40,
+    "min_lr": 1e-6,
+    "lr": LR,
+    "epochs": PRE_TRAINING_MAX_EPOCHS
+}
 
 # Fine-tuning
 FINE_TUNING_TRANSFORMS = Compose([

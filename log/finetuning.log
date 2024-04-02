@@ -1,0 +1,7 @@
+INFO 2024-03-28 22:40:14,590 :114 - Logger initialized successfully.
+INFO 2024-03-28 22:41:20,750 :115 - device: cpu
+INFO 2024-03-28 22:54:54,431 - device: cpu
+INFO 2024-03-28 23:30:56,267 - Epoch 1: loss =  0.99349
+INFO 2024-03-31 11:09:32,241 - device: cpu
+INFO 2024-03-31 11:17:28,236 - device: cpu
+INFO 2024-04-01 00:10:28,811 - device: cpu

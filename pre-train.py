@@ -14,7 +14,8 @@ from settings import (SEED,
                       PRE_TRAINING_MAX_EPOCHS as MAX_EPOCHS,
                       PRE_TRAINING_FREQ_INFO as FREQ_INFO,
                       PRE_TRAINING_FREQ_SAVE as FREQ_SAVE,
-                      MASK_RATIO)
+                      MASK_RATIO,
+                      LR_SCHED_ARGS)
 from torch import manual_seed, Generator
 import torch.nn as nn
 from torchvision.datasets import ImageNet
@@ -50,6 +51,6 @@ if __name__ == '__main__':
     optimizer = OPTIMIZER(model.parameters())
 
     pretrainer = PreTrainer(MAX_EPOCHS, FREQ_INFO, FREQ_SAVE, DEVICE)
-    pretrainer.fit(model, train_dataloader, optimizer, MASK_RATIO)
+    pretrainer.fit(model, train_dataloader, optimizer, MASK_RATIO, LR_SCHED_ARGS)
 
     torch.save(model.state_dict(), 'model_pre_trained.pth')

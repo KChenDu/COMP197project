@@ -1,3 +1,5 @@
+from functools import partial
+from models.mae import MaskedAutoencoderViT
 from settings import (SEED,
                       DEVICE,
                       setup_device,
@@ -16,7 +18,7 @@ from torch.utils.data import random_split, DataLoader
 from utils import FineTuner
 
 import torch
-
+import torch.nn as nn
 
 TRAIN = True
 
@@ -34,9 +36,14 @@ if __name__ == '__main__':
     # Create the dataloaders
     train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, generator=generator)
     valid_dataloader = DataLoader(valid_dataset, BATCH_SIZE, num_workers=NUM_WORKERS, generator=generator)
+    
+    encoder_state_dict = torch.load('model_pre_trained.pth')
 
     # Import the model
-    model = MODEL()
+    model = MODEL(encoder_state_dict,
+                    encoder_depth=4,
+                    decoder_channels=(512, 320, 128, 64))
+    
     # Define the optimizer
     optimizer = OPTIMIZER(model.parameters())
 

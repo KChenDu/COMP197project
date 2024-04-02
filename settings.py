@@ -5,14 +5,13 @@ from os import cpu_count
 from torchvision.transforms import InterpolationMode
 from torchvision.transforms.v2 import Compose, RandomResizedCrop, RandomHorizontalFlip, ToImage, Normalize, ToDtype, Resize
 from torch import float32
-from models.mae import mae_vit_base_patch16_dec512d8b
+from models.mae import mae_vit_base_patch16_dec512d8b, MaskedAutoencoderViT
 from functools import partial
 from torch.optim import AdamW
 from models.nn import PetModel
 from data.augmentation import CannyEdgeDetection, MaskPreprocessing
 from models.resunet import ResUNet
-from models.smp_unet import SMPMiTUNet
-
+from models.smp_unet import SMPMiTUNet, ViTEncodedUnet
 
 # General
 IMAGES_PATH = Path("images")
@@ -52,10 +51,11 @@ PRE_TRAINING_TRANSFORM = Compose([
     ToDtype(float32),
     Normalize((.485, .456, .406), (.229, .224, .225))
 ])
-PRE_TRAINING_BATCH_SIZE = 226
-PRE_TRAINING_MODEL = mae_vit_base_patch16_dec512d8b
+PRE_TRAINING_BATCH_SIZE = 50
+PRE_TRAINING_MODEL = MaskedAutoencoderViT
+# PRE_TRAINING_MODEL = mae_vit_base_patch16_dec512d8b
 PRE_TRAINING_OPTIMIZER = partial(AdamW, lr=1.5e-4 * PRE_TRAINING_BATCH_SIZE / 256., weight_decay=.05, betas=(.9, .95))
-PRE_TRAINING_MAX_EPOCHS = 100
+PRE_TRAINING_MAX_EPOCHS = 1
 PRE_TRAINING_FREQ_INFO = 1
 PRE_TRAINING_FREQ_SAVE = 50
 MASK_RATIO = .75
@@ -69,7 +69,7 @@ FINE_TUNING_TRANSFORMS = Compose([
     ToDtype(float32, scale=True)
 ])
 FINE_TUNING_BATCH_SIZE = 16
-FINE_TUNING_MODEL = SMPMiTUNet
+FINE_TUNING_MODEL = ViTEncodedUnet
 FINE_TUNING_OPTIMIZER = partial(AdamW, lr=1e-4, weight_decay=1.6e-4)
 FINE_TUNING_MAX_EPOCHS = 1
 FINE_TUNING_FREQ_INFO = 1

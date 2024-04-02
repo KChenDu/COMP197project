@@ -18,11 +18,13 @@ from timm.models.vision_transformer import PatchEmbed, Block
 
 from models.util.pos_embed import get_2d_sincos_pos_embed
 
+from models.util.sampling import Downsample, Upsample
+from segmentation_models_pytorch.encoders._base import EncoderMixin
 
-class MaskedAutoencoderViT(nn.Module):
+class MaskedAutoencoderViT(nn.Module, EncoderMixin):
     """ Masked Autoencoder with VisionTransformer backbone
     """
-    def __init__(self, img_size=224, patch_size=16, in_chans=3,
+    def __init__(self, img_size=224, patch_size=16, in_chans=3, out_chans=[512, 320, 128, 64],
                  embed_dim=1024, depth=24, num_heads=16,
                  decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
                  mlp_ratio=4., norm_layer=nn.LayerNorm, norm_pix_loss=False):
@@ -40,6 +42,19 @@ class MaskedAutoencoderViT(nn.Module):
             Block(embed_dim, num_heads, mlp_ratio, qkv_bias=True, norm_layer=norm_layer)
             for i in range(depth)])
         self.norm = norm_layer(embed_dim)
+        
+        # Sampling modules
+        self.down2x = Downsample(in_channels=embed_dim, out_channels=512, scale_factor=2)
+        self.id = nn.Identity()
+        self.up2x = Upsample(in_channels=embed_dim, out_channels=128, scale_factor=2)
+        self.up4x = Upsample(in_channels=embed_dim, out_channels=64, scale_factor=4)
+        
+        self.multi_scale_adaptors = [
+            self.up4x,
+            self.up2x,
+            self.id,
+            self.down2x
+        ]
         # --------------------------------------------------------------------------
 
         # --------------------------------------------------------------------------
@@ -59,6 +74,10 @@ class MaskedAutoencoderViT(nn.Module):
         # --------------------------------------------------------------------------
 
         self.norm_pix_loss = norm_pix_loss
+
+        self._out_channels = out_chans
+        self._depth = depth
+        self._in_channels = 3
 
         self.initialize_weights()
 
@@ -169,6 +188,31 @@ class MaskedAutoencoderViT(nn.Module):
 
         return x, mask, ids_restore
 
+    # Currently features are fixed to 4 scales
+    def forward_feature(self, x):
+        
+        # create dummy output for the first block
+        B, C, H, W = x.shape
+        dummy = torch.empty([B, 0, H // 2, W // 2], dtype=x.dtype, device=x.device)
+                
+        x = self.patch_embed(x)
+        
+        # add pos embed w/o cls token
+        x = x + self.pos_embed[:, 1:, :]
+        
+        # append cls token
+        cls_token = self.cls_token + self.pos_embed[:, :1, :]
+        cls_tokens = cls_token.expand(x.shape[0], -1, -1)
+        x = torch.cat((cls_tokens, x), dim=1)
+        
+        features = []
+        for i, blk in enumerate(self.blocks):
+            x = blk(x)
+            feat = self.multi_scale_adaptors[i](x)
+            features.append(feat)
+        
+        return [x, dummy] + features[: self._depth - 1]  
+
     def forward_decoder(self, x, ids_restore):
         # embed tokens
         x = self.decoder_embed(x)
@@ -218,6 +262,18 @@ class MaskedAutoencoderViT(nn.Module):
         pred = self.forward_decoder(latent, ids_restore)  # [N, L, p*p*3]
         loss = self.forward_loss(imgs, pred, mask)
         return loss, pred, mask
+    
+    def make_dilated(self, *args, **kwargs):
+        raise ValueError("VisionTransformer encoder does not support dilated mode")
+
+    def set_in_channels(self, in_channels, *args, **kwargs):
+        if in_channels != 3:
+            raise ValueError("VisionTransformer encoder does not support in_channels setting other than 3")
+
+    def load_state_dict(self, state_dict):
+        state_dict.pop("head.weight", None)
+        state_dict.pop("head.bias", None)
+        return super().load_state_dict(state_dict)
 
 
 def mae_vit_base_patch16_dec512d8b(**kwargs):
@@ -248,3 +304,4 @@ def mae_vit_huge_patch14_dec512d8b(**kwargs):
 mae_vit_base_patch16 = mae_vit_base_patch16_dec512d8b  # decoder: 512 dim, 8 blocks
 mae_vit_large_patch16 = mae_vit_large_patch16_dec512d8b  # decoder: 512 dim, 8 blocks
 mae_vit_huge_patch14 = mae_vit_huge_patch14_dec512d8b  # decoder: 512 dim, 8 blocks
+

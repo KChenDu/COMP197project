@@ -13,7 +13,7 @@ class Upsample(Module):
             kernel_size=kernel_size, 
             stride=scale_factor, 
             padding=1, 
-            output_padding=1
+            output_padding=scale_factor-1
         )
         self.actv = nn.ReLU()
         if batch_norm:

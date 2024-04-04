@@ -1,5 +1,6 @@
 from functools import partial
 from models.mae import MaskedAutoencoderViT
+from models.smp_unet import ViTEncodedUnet
 from settings import (SEED,
                       DEVICE,
                       setup_device,
@@ -37,10 +38,13 @@ if __name__ == '__main__':
     train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, generator=generator)
     valid_dataloader = DataLoader(valid_dataset, BATCH_SIZE, num_workers=NUM_WORKERS, generator=generator)
     
-    encoder_state_dict = torch.load('model_pre_trained.pth')
 
     # Import the model
-    model = MODEL(encoder_state_dict, encoder_depth=4, decoder_channels=(512, 320, 128, 64))
+    if MODEL is ViTEncodedUnet:
+        encoder_state_dict = torch.load('model_pre_trained.pth')
+        model = MODEL(encoder_state_dict)
+    else:
+        model = MODEL()
     
     # Define the optimizer
     optimizer = OPTIMIZER(model.parameters())

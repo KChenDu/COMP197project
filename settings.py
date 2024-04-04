@@ -24,12 +24,12 @@ if torch.cuda.is_available():
     NUM_WORKERS = 0  # turn off multi-processing because of CUDA is not very compatible with it
     # PIN_MEMORY = True # PyTorch recommends to enable pin_memory when using CUDA, but we are using custom type, so it need additional handling
     DEVICE = "cuda"
-    print(f"[Using CUDA] Found {NUM_WORKERS} GPU(s) available.")
+    print(f"[Using CUDA] Found {torch.cuda.device_count()} GPU(s) available.")
 elif torch.backends.mps.is_built():
     DEVICE = 'mps'
 else:
     DEVICE = 'cpu'
-    print(f"[Using CPU] Found {NUM_WORKERS} CPU(s) available.")
+    print(f"[Using CPU] Found {NUM_WORKERS} CPU Worker(s) available.")
 
 torch.set_default_device(DEVICE)
 
@@ -75,7 +75,8 @@ FINE_TUNING_TRANSFORMS = Compose([
     ToImage(),
     ToDtype(float32, scale=True)
 ])
-FINE_TUNING_BATCH_SIZE = 16
+FINE_TUNING_BATCH_SIZE = 100
+# FINE_TUNING_MODEL = SMPMiTUNet
 FINE_TUNING_MODEL = ViTEncodedUnet
 FINE_TUNING_OPTIMIZER = partial(AdamW, lr=1e-4, weight_decay=1.6e-4)
 FINE_TUNING_MAX_EPOCHS = 1

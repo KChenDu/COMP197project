@@ -46,7 +46,7 @@ class MaskedAutoencoderViT(nn.Module, EncoderMixin):
         
         # Sampling modules
         self.down2x = Downsample(in_channels=embed_dim, out_channels=512, scale_factor=2)
-        self.id = nn.Identity()
+        self.id = nn.Conv2d(in_channels=embed_dim, out_channels=320, kernel_size=1, stride=1, padding=0, bias=False)
         self.up2x = Upsample(in_channels=embed_dim, out_channels=128, scale_factor=2)
         self.up4x = Upsample(in_channels=embed_dim, out_channels=64, scale_factor=4)
         
@@ -78,7 +78,7 @@ class MaskedAutoencoderViT(nn.Module, EncoderMixin):
         self.embed_dim = embed_dim
         self.norm_pix_loss = norm_pix_loss
 
-        self._out_channels = out_chans
+        self._out_channels = [3, 0] + list(out_chans)[::-1]
         self._depth = depth
         self._in_channels = 3
 

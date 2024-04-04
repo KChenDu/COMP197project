@@ -53,11 +53,11 @@ class ViTEncodedUnet(SegmentationModel):
         self.encoder.load_state_dict(encoder_state_dict)
                 
         self.decoder = UnetDecoder(
-            encoder_channels=self.encoder.out_channels,
+            encoder_channels=(3, 0, 64, 128, 320, 512),
             decoder_channels=decoder_channels,
-            n_blocks=encoder_depth,
+            n_blocks=encoder_depth + 1,
             use_batchnorm=decoder_use_batchnorm,
-            center=True,
+            center=False,
             attention_type=None
         )
 

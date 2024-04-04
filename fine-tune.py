@@ -40,9 +40,7 @@ if __name__ == '__main__':
     encoder_state_dict = torch.load('model_pre_trained.pth')
 
     # Import the model
-    model = MODEL(encoder_state_dict,
-                    encoder_depth=4,
-                    decoder_channels=(512, 320, 128, 64))
+    model = MODEL(encoder_state_dict, encoder_depth=4, decoder_channels=(512, 320, 128, 64))
     
     # Define the optimizer
     optimizer = OPTIMIZER(model.parameters())

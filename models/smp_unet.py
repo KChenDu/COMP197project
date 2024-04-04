@@ -9,12 +9,13 @@ from segmentation_models_pytorch.base import SegmentationModel, SegmentationHead
 
 from models.mae import MaskedAutoencoderViT
 
+
 class SMPMiTUNet(nn.Module):
     def __init__(self, in_channels: int = 3, out_channels: int = 1, dropout: float = 0.1, activation: str = 'sigmoid', **kwargs):
         super(SMPMiTUNet, self).__init__()
         self.model = Unet(encoder_name='mit_b1',
                             encoder_weights='imagenet',
-                            decoder_channels=(224, 112, 56, 28, 14),
+                            decoder_channels=[224, 112, 56, 28, 14],
                             encoder_depth=5,
                             in_channels=in_channels,
                             decoder_use_batchnorm=True,
@@ -26,13 +27,14 @@ class SMPMiTUNet(nn.Module):
     def forward(self, x):
         x = self.model(x)
         return x
-    
+
+
 class ViTEncodedUnet(SegmentationModel):
     def __init__(self, 
                 encoder_state_dict: any,
                 in_channels: int = 3,
-                out_channels: List[int] = [512, 320, 128, 64],
-                encoder_depth: int = 5,
+                out_channels: tuple[int] = (512, 320, 128, 64),
+                encoder_depth: int = 4,
                 activation = 'sigmoid', 
                 decoder_use_batchnorm: bool = True,
                 decoder_channels: List[int] = (256, 128, 64, 32, 16),
@@ -44,7 +46,7 @@ class ViTEncodedUnet(SegmentationModel):
                                             in_chans=in_channels,
                                             out_chans=out_channels,
                                             embed_dim=768,
-                                            depth=5,
+                                            depth=4,
                                             decoder_embed_dim=512,
                                             num_heads=12,
                                             mlp_ratio=4)
@@ -71,7 +73,6 @@ class ViTEncodedUnet(SegmentationModel):
         self.name = "unet-vit"
         self.initialize()
 
-    
     def forward(self, x):
         """Sequentially pass `x` trough model`s encoder, decoder and heads"""
 

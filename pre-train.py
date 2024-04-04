@@ -31,23 +31,13 @@ if __name__ == '__main__':
     # Load the train dataset
     train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM, num_samples=1000)
     # train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM)
-
     # train_dataset = ImageNet(DATA_ROOT, 'val', transform=TRANSFORM)
 
     # Create the dataloaders
     train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, generator=Generator(device=DEVICE), pin_memory=PIN_MEMORY)
 
     # Import the model
-    model = MODEL(img_size=224,
-                    patch_size=16,
-                    in_chans=3,
-                    out_chans=[512, 320, 128, 64],
-                    embed_dim=768,
-                    depth=5,
-                    decoder_embed_dim=512,
-                    num_heads=12,
-                    mlp_ratio=4)
-    # model = MODEL()
+    model = MODEL()
     
     # Define the optimizer
     optimizer = OPTIMIZER(model.parameters())

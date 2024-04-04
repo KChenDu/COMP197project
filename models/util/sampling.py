@@ -3,6 +3,7 @@ import torch.nn as nn
 
 from torch.nn import Module
 
+
 class Upsample(Module):
     def __init__(self, in_channels, out_channels, scale_factor, kernel_size=3, batch_norm=True):
         super(Upsample, self).__init__()
@@ -25,7 +26,8 @@ class Upsample(Module):
         if self.batch_normal:
             x = self.batch_normal(x)
         return x
-    
+
+
 class Downsample(Module):
     def __init__(self, in_channels, out_channels, scale_factor=2, kernel_size=3, batch_norm=True):
         super(Downsample, self).__init__()

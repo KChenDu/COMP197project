@@ -62,6 +62,7 @@ class BaseTrainer(ABC):
         self.device = torch.device(device)
 
     def plot_accuracy(self, accuracies: list[float]) -> None:
+        accuracies = [accu.item() for accu in accuracies]
         plt.figure()
         plt.plot(accuracies, marker='o', linestyle='-', color='b')
         plt.xlabel('Epoch')
@@ -71,6 +72,7 @@ class BaseTrainer(ABC):
         plt.show()
         
     def plot_loss(self, losses: list[float]) -> None:
+        losses = [loss.item() for loss in losses]
         plt.figure()
         plt.plot(losses, marker='o', linestyle='-', color='r')
         plt.xlabel('Epoch')
@@ -80,6 +82,7 @@ class BaseTrainer(ABC):
         plt.show()
         
     def plot_sdc_score(self, sdc_scores: list[float]) -> None:
+        sdc_scores = [score.item() for score in sdc_scores]
         plt.figure()
         plt.plot(sdc_scores, marker='o', linestyle='-', color='g')
         plt.xlabel('Epoch')
@@ -108,7 +111,7 @@ class BaseTrainer(ABC):
             if print_info:
                 extra_info['loss'] = dice_loss(predicts, masks)
                 extra_info['accuracy'] = segment_accuracy(predicts, masks)
-                extra_info['dice_score'] = dice_score(predicts, masks)
+                extra_info['bin_dice_score'] = dice_binary(predicts, masks)
             
             fig, axs = plt.subplots(num_samples, 4, figsize=(12, 3*num_samples))
             for j in range(num_samples):
@@ -163,7 +166,7 @@ class PreTrainer(BaseTrainer):
         model.to(device)
         length = len(train_dataloader)
         losses = []
-        
+
         for epoch in range(1, self.max_epochs + 1):
             loss = None
             for data_iter_step, (frames, _) in enumerate(tqdm(train_dataloader, f'Epoch {epoch}', leave=False, unit='batches')):
@@ -171,7 +174,7 @@ class PreTrainer(BaseTrainer):
                 adjust_learning_rate(optimizer, data_iter_step / length + epoch, args)
                 loss = training_step(model, frames.to(device), optimizer, mask_ratio)
             losses.append(loss)
-            
+
             if epoch % freq_info < 1:
                 self.logger.info(f'Epoch {epoch}: loss = {loss: .5f}')
 
@@ -197,6 +200,9 @@ class FineTuner(BaseTrainer):
         super().__init__(max_epochs, freq_info, freq_save, device)
         self.logger = setup_logger('log/finetuning.log')
         self.logger.info("device: " + device)
+        self.losses = []
+        self.accuracies = []
+        self.sdc_scores = []
 
     @staticmethod
     def training_step(model, images: Tensor, labels: Tensor, optimizer) -> Tensor:
@@ -206,7 +212,8 @@ class FineTuner(BaseTrainer):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        return loss, acc
+        sdc_scores = mean(dice_score(model(images), labels))
+        return loss, acc, sdc_scores
 
     @staticmethod
     def validation_step(model, images: Tensor, labels: Tensor) -> Tensor:
@@ -244,10 +251,15 @@ class FineTuner(BaseTrainer):
             loss = None
             acc = None
             for frames, masks in tqdm(train_dataloader, f'epoch {epoch}', leave=False, unit='batches'):
-                loss, acc = training_step(model, frames.to(device), masks.to(device), optimizer)
+                loss, acc, sdc_score = training_step(model, frames.to(device), masks.to(device), optimizer)
+            print(type(loss))
+            self.losses.append(loss)
+            self.accuracies.append(acc)
+            self.sdc_scores.append(sdc_score)
 
             if epoch % freq_info < 1:
                 self.logger.info(f'Epoch {epoch}: loss = {loss: .5f}, accuracy = {acc: .5f}')
+
 
             self.draw_predictions(model, valid_dataloader, print_info=True, save_img=True, tag=epoch)
 
@@ -263,9 +275,12 @@ class FineTuner(BaseTrainer):
                     'epoch': epoch,
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
-                    'loss': loss
+                    'loss': loss    
                 }, MODEL_CHECKPOINTS_PATH / name / timestamp / f'epoch_{epoch: d}')
                 self.logger.info('Model saved.')
+        self.plot_loss(self.losses)
+        self.plot_accuracy(self.accuracies)
+        self.plot_sdc_score(self.sdc_scores)
 
         
 class Tester:

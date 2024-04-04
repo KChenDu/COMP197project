@@ -53,4 +53,4 @@ if __name__ == '__main__':
     pretrainer = PreTrainer(MAX_EPOCHS, FREQ_INFO, FREQ_SAVE, DEVICE)
     pretrainer.fit(model, train_dataloader, optimizer, MASK_RATIO, LR_SCHED_ARGS)
 
-    torch.save(model.state_dict(), 'model_pre_trained.pth')
+    torch.save(model.state_dict(), './models/model_pre_trained_final.pth')

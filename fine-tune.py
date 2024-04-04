@@ -41,7 +41,13 @@ if __name__ == '__main__':
 
     # Import the model
     if MODEL is ViTEncodedUnet:
-        encoder_state_dict = torch.load('model_pre_trained.pth')
+
+        # Load checkpoint
+        checkpoint = torch.load('./models/checkpoints/MaskedAutoencoderViT/2024-04-04_22-38-39/epoch_1.pth') #  model_pre_trained_ImageNet_20.pth
+        encoder_state_dict = checkpoint['model_state_dict']
+        model = MODEL(encoder_state_dict)
+
+        encoder_state_dict = torch.load('./models/model_pre_trained.pth')
         model = MODEL(encoder_state_dict)
     else:
         model = MODEL()
@@ -53,9 +59,9 @@ if __name__ == '__main__':
 
     if TRAIN:
         finetuner.fit(model, train_dataloader, valid_dataloader, optimizer)
-        torch.save(model.state_dict(), 'model.pth')
+        torch.save(model.state_dict(), './models/model_fine_tuned_final.pth')
     else:
-        model.load_state_dict(torch.load('model.pth'))
+        model.load_state_dict(torch.load('./models/model_fine_tuned_final.pth'))
 
     # losses, sdc_scores = trainer.validate(model, valid_dataloader)
     # losses = [torch.mean(loss).item() for loss in losses]

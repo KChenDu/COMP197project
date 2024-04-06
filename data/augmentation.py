@@ -1,7 +1,11 @@
 from torch.nn import Module
-from numpy import array, zeros_like, float32
 from PIL import Image
+from numpy import array, zeros_like
 from cv2 import GaussianBlur, Canny, addWeighted
+from torch import Tensor, float32
+from torchvision.transforms import InterpolationMode
+from torchvision.transforms.v2 import Resize, ToDtype, Normalize
+from torchvision.transforms.v2.functional import to_image, to_dtype
 
 
 class CannyEdgeDetection(Module):
@@ -40,3 +44,25 @@ class MaskPreprocessing(Module):
         # Mask == 3: Edge
         mask[mask == 3] = 127 if self.explicit_edge else 255
         return inpt, Image.fromarray(mask)
+
+
+class Preprocess(Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, inpt: Image.Image, mask: Image.Image) -> tuple[Tensor, Tensor]:
+        inpt = Resize((224, 224), InterpolationMode.BICUBIC)(inpt)
+        inpt = to_image(inpt)
+        inpt = to_dtype(inpt, float32)
+        Normalize((.485, .456, .406), (.229, .224, .225), True)(inpt)
+
+        mask = array(mask)
+        mask[mask == 2] = 0
+        mask[mask == 3] = 1
+        mask = Image.fromarray(mask)
+        mask = Resize((224, 224), InterpolationMode.NEAREST)(mask)
+        mask.show()
+        mask = to_image(mask)
+        mask = to_dtype(mask, float32)
+
+        return inpt, mask

@@ -52,6 +52,8 @@ PRE_TRAINING_TRANSFORM = Compose([
     ToDtype(float32),
     Normalize((.485, .456, .406), (.229, .224, .225))
 ])
+PRE_TRAINING_DATA = 'ImageNet'
+# PRE_TRAINING_DATA = 'KaggleCatsAndDogs'
 PRE_TRAINING_BATCH_SIZE = 16
 PRE_TRAINING_MODEL = MaskedAutoencoderViT
 # PRE_TRAINING_MODEL = mae_vit_base_patch16_dec512d8b

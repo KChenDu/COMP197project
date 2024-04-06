@@ -8,6 +8,7 @@ from settings import (SEED,
                       FINE_TUNING_TRANSFORMS as TRANSFORMS,
                       FINE_TUNING_BATCH_SIZE as BATCH_SIZE,
                       NUM_WORKERS,
+                      PRE_TRAINED_MODEL_FOR_FINE_TUNING as PRE_TRAINED_MODEL,
                       FINE_TUNING_MODEL as MODEL,
                       FINE_TUNING_OPTIMIZER as OPTIMIZER,
                       FINE_TUNING_MAX_EPOCHS as MAX_EPOCHS,
@@ -43,12 +44,12 @@ if __name__ == '__main__':
     if MODEL is ViTEncodedUnet:
 
         # Load checkpoint
-        checkpoint = torch.load('./models/checkpoints/MaskedAutoencoderViT/2024-04-04_22-38-39/epoch_1.pth') #  model_pre_trained_ImageNet_20.pth
+        checkpoint = torch.load(PRE_TRAINED_MODEL) #  model_pre_trained_ImageNet_20.pth
         encoder_state_dict = checkpoint['model_state_dict']
         model = MODEL(encoder_state_dict)
 
-        encoder_state_dict = torch.load('./models/model_pre_trained.pth')
-        model = MODEL(encoder_state_dict)
+        # encoder_state_dict = torch.load('./models/model_pre_trained.pth')
+        # model = MODEL(encoder_state_dict)
     else:
         model = MODEL()
     

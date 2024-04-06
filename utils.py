@@ -101,7 +101,7 @@ class BaseTrainer(ABC):
                 num_samples = max_samples
                 frames = frames[:num_samples]
                 masks = masks[:num_samples]
-                predicts = predicts[:num_samples]
+                # predicts = predicts[:num_samples]
             
             frames, masks = frames.to(self.device), masks.to(self.device)
             frames, masks = pre_process(frames, masks)
@@ -184,14 +184,13 @@ class PreTrainer(BaseTrainer):
                 
                 save_dir = MODEL_CHECKPOINTS_PATH / name / timestamp
                 save_dir.mkdir(parents=True, exist_ok=True)
-
                 torch.save({
                     'epoch': epoch,
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
                     'loss': loss,
                     'losses': losses
-                }, save_dir / f'epoch_{epoch: d}')
+                }, save_dir / f'epoch_{epoch:d}.pth')
                 self.logger.info('Model saved.')
 
 
@@ -260,23 +259,28 @@ class FineTuner(BaseTrainer):
             if epoch % freq_info < 1:
                 self.logger.info(f'Epoch {epoch}: loss = {loss: .5f}, accuracy = {acc: .5f}')
 
-
             self.draw_predictions(model, valid_dataloader, print_info=True, save_img=True, tag=epoch)
 
             if epoch % freq_save < 1:
                 losses_all, acc_all = validate(model, valid_dataloader)
-                val_loss = mean(torch.tensor(losses_all))
-                val_mean = mean(torch.tensor(acc_all))
+                # val_loss = mean(torch.tensor(losses_all))
+                # val_mean = mean(torch.tensor(acc_all))
+                val_loss = mean(torch.stack(losses_all)).item()
+                val_mean = mean(torch.stack(acc_all)).item()
+
                 self.logger.info(f'Epoch {epoch}: val-loss = {val_loss: .5f}, val-accuracy = {val_mean: .5f}')
                 
                 if timestamp is None:
                     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+                save_dir = MODEL_CHECKPOINTS_PATH / name / timestamp
+                save_dir.mkdir(parents=True, exist_ok=True)
                 torch.save({
                     'epoch': epoch,
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
                     'loss': loss    
-                }, MODEL_CHECKPOINTS_PATH / name / timestamp / f'epoch_{epoch: d}')
+                }, MODEL_CHECKPOINTS_PATH / name / timestamp / f'epoch_{epoch:d}')
                 self.logger.info('Model saved.')
         self.plot_loss(self.losses)
         self.plot_accuracy(self.accuracies)

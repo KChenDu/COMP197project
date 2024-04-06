@@ -51,17 +51,24 @@ class Preprocess(Module):
         super().__init__()
 
     def forward(self, inpt: Image.Image, mask: Image.Image) -> tuple[Tensor, Tensor]:
+        ## Image processing
+        # resize with bicubic interpolation
         inpt = Resize((224, 224), InterpolationMode.BICUBIC)(inpt)
+        # convert to tensor
         inpt = to_image(inpt)
         inpt = to_dtype(inpt, float32)
+        # normalize with mean and std if ImageNet
         Normalize((.485, .456, .406), (.229, .224, .225), True)(inpt)
 
+        ## Mask processing
+        # 处理三色图
         mask = array(mask)
         mask[mask == 2] = 0
         mask[mask == 3] = 1
         mask = Image.fromarray(mask)
+        # resize with nearest interpolation
         mask = Resize((224, 224), InterpolationMode.NEAREST)(mask)
-        mask.show()
+        # convert to tensor
         mask = to_image(mask)
         mask = to_dtype(mask, float32)
 

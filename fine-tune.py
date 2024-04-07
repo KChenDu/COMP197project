@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     if TRAIN:
         finetuner.fit(model, train_dataloader, valid_dataloader, optimizer)
-        torch.save(model.state_dict(), f'./models/model_fine_tuned_final_{'baseline' if BASELINE_MODE else 'pretrained'}.pth')
+        torch.save(model.state_dict(), f'./models/model_fine_tuned_final_{"baseline" if BASELINE_MODE else "pretrained"}.pth')
     else:
         model.load_state_dict(torch.load('./models/model_fine_tuned_final.pth'))
 

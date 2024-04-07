@@ -31,7 +31,7 @@ class SMPMiTUNet(nn.Module):
 
 class ViTEncodedUnet(SegmentationModel):
     def __init__(self, 
-                encoder_state_dict: any,
+                encoder_state_dict: any = None,
                 in_channels: int = 3,
                 out_channels: tuple[int] = (512, 320, 128, 64),
                 encoder_depth: int = 4,
@@ -50,8 +50,11 @@ class ViTEncodedUnet(SegmentationModel):
                                             decoder_embed_dim=512,
                                             num_heads=12,
                                             mlp_ratio=4)
-        self.encoder.load_state_dict(encoder_state_dict)
-                
+        if encoder_state_dict is not None:
+            self.encoder.load_state_dict(encoder_state_dict)
+        else:
+            self.encoder.initialize_weights()
+            
         self.decoder = UnetDecoder(
             encoder_channels=(3, 0, 64, 128, 320, 512),
             decoder_channels=decoder_channels,

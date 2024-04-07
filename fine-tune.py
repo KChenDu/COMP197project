@@ -13,7 +13,8 @@ from settings import (SEED,
                       FINE_TUNING_OPTIMIZER as OPTIMIZER,
                       FINE_TUNING_MAX_EPOCHS as MAX_EPOCHS,
                       FINE_TUNING_FREQ_INFO as FREQ_INFO,
-                      FINE_TUNING_FREQ_SAVE as FREQ_SAVE)
+                      FINE_TUNING_FREQ_SAVE as FREQ_SAVE,
+                      BASELINE_MODE)
 from torch import manual_seed, Generator
 from torchvision.datasets import OxfordIIITPet
 from torch.utils.data import random_split, DataLoader
@@ -38,18 +39,18 @@ if __name__ == '__main__':
     # Create the dataloaders
     train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, generator=generator)
     valid_dataloader = DataLoader(valid_dataset, BATCH_SIZE, num_workers=NUM_WORKERS, generator=generator)
-    
 
     # Import the model
     if MODEL is ViTEncodedUnet:
-
-        # Load checkpoint
-        checkpoint = torch.load(PRE_TRAINED_MODEL) #  model_pre_trained_ImageNet_20.pth
-        encoder_state_dict = checkpoint['model_state_dict']
-        model = MODEL(encoder_state_dict)
-
-        # encoder_state_dict = torch.load('./models/model_pre_trained.pth')
-        # model = MODEL(encoder_state_dict)
+        if BASELINE_MODE:
+            # Load checkpoint
+            checkpoint = torch.load(PRE_TRAINED_MODEL) #  model_pre_trained_ImageNet_20.pth
+            # encoder_state_dict = checkpoint['model_state_dict']
+            model = MODEL(encoder_state_dict=checkpoint)
+            # encoder_state_dict = torch.load('./models/model_pre_trained.pth')
+            # model = MODEL(encoder_state_dict)
+        else:
+            model = MODEL(encoder_state_dict=None)
     else:
         model = MODEL()
     
@@ -60,7 +61,7 @@ if __name__ == '__main__':
 
     if TRAIN:
         finetuner.fit(model, train_dataloader, valid_dataloader, optimizer)
-        torch.save(model.state_dict(), './models/model_fine_tuned_final.pth')
+        torch.save(model.state_dict(), f'./models/model_fine_tuned_final_{'baseline' if BASELINE_MODE else 'pretrained'}.pth')
     else:
         model.load_state_dict(torch.load('./models/model_fine_tuned_final.pth'))
 

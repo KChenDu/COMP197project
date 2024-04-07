@@ -58,7 +58,7 @@ class Preprocess(Module):
         inpt = to_image(inpt)
         inpt = to_dtype(inpt, float32)
         # normalize with mean and std if ImageNet
-        Normalize((.485, .456, .406), (.229, .224, .225), True)(inpt)
+        # Normalize((.485, .456, .406), (.229, .224, .225), True)(inpt)
 
         ## Mask processing
         # 处理三色图

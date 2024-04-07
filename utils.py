@@ -12,6 +12,7 @@ from tqdm import tqdm
 from datetime import datetime
 from settings import MODEL_CHECKPOINTS_PATH
 from torchvision.utils import save_image
+from torchvision.transforms.v2 import Normalize
 
 
 def setup_logger(file_handler_path):
@@ -106,6 +107,7 @@ class BaseTrainer(ABC):
             frames, masks = frames.to(self.device), masks.to(self.device)
             frames, masks = pre_process(frames, masks)
             predicts = model(frames)
+            frames = frames.type(torch.uint8)
             
             extra_info = {}
             if print_info:
@@ -250,6 +252,7 @@ class FineTuner(BaseTrainer):
             loss = None
             acc = None
             for frames, masks in tqdm(train_dataloader, f'epoch {epoch}', leave=False, unit='batches'):
+                frames = Normalize((.485, .456, .406), (.229, .224, .225), True)(frames)
                 loss, acc, sdc_score = training_step(model, frames.to(device), masks.to(device), optimizer)
             print(type(loss))
             self.losses.append(loss)

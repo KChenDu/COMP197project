@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     # Import the model
     if MODEL is ViTEncodedUnet:
-        if BASELINE_MODE:
+        if not BASELINE_MODE:
             # Load checkpoint
             checkpoint = torch.load(PRE_TRAINED_MODEL) #  model_pre_trained_ImageNet_20.pth
             # encoder_state_dict = checkpoint['model_state_dict']

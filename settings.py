@@ -44,7 +44,7 @@ def setup_device():
 # Data
 DATA_ROOT = Path("data")
 
-BASELINE_MODE = True
+BASELINE_MODE = False
 
 # Pre-training
 PRE_TRAINING_TRANSFORM = Compose([

@@ -265,8 +265,8 @@ class FineTuner(BaseTrainer):
                 losses_all, acc_all = validate(model, valid_dataloader)
                 # val_loss = mean(torch.tensor(losses_all))
                 # val_mean = mean(torch.tensor(acc_all))
-                val_loss = mean(torch.stack(losses_all)).item()
-                val_mean = mean(torch.stack(acc_all)).item()
+                val_loss = mean(torch.cat(losses_all)).item()
+                val_mean = mean(torch.cat(acc_all)).item()
 
                 self.logger.info(f'Epoch {epoch}: val-loss = {val_loss: .5f}, val-accuracy = {val_mean: .5f}')
                 

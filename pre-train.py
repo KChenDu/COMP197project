@@ -5,6 +5,7 @@ from settings import (SEED,
                       DEVICE,
                       setup_device,
                       DATA_ROOT,
+                      PRE_TRAINING_DATA,
                       PRE_TRAINING_TRANSFORM as TRANSFORM,
                       PRE_TRAINING_BATCH_SIZE as BATCH_SIZE,
                       NUM_WORKERS,
@@ -29,9 +30,11 @@ if __name__ == '__main__':
     setup_device()
 
     # Load the train dataset
-    # train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM, num_samples=1000)
-    train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM)
-    # train_dataset = ImageNet(DATA_ROOT, 'val', transform=TRANSFORM)
+    if PRE_TRAINING_DATA == 'ImageNet':
+        train_dataset = ImageNet(DATA_ROOT, 'val', transform=TRANSFORM)
+    elif PRE_TRAINING_DATA == 'KaggleCatsAndDogs':
+        # train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM, num_samples=1000)
+        train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM)
 
     # Create the dataloaders
     train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, generator=Generator(device=DEVICE), pin_memory=PIN_MEMORY)

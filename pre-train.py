@@ -1,4 +1,3 @@
-from functools import partial
 import torch
 from models.mae import MaskedAutoencoderViT
 from settings import (SEED,
@@ -30,11 +29,10 @@ if __name__ == '__main__':
     setup_device()
 
     # Load the train dataset
-    if PRE_TRAINING_DATA == 'ImageNet':
-        train_dataset = ImageNet(DATA_ROOT, 'val', transform=TRANSFORM)
-    elif PRE_TRAINING_DATA == 'KaggleCatsAndDogs':
-        # train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM, num_samples=1000)
-        train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, transform=TRANSFORM)
+    # if PRE_TRAINING_DATA == 'ImageNet':
+    #     train_dataset = ImageNet(DATA_ROOT, 'val', transform=TRANSFORM)
+    # elif PRE_TRAINING_DATA == 'KaggleCatsAndDogs':
+    train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, TRANSFORM, 200)
 
     # Create the dataloaders
     train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, generator=Generator(device=DEVICE), pin_memory=PIN_MEMORY)
@@ -55,5 +53,3 @@ if __name__ == '__main__':
 
     pretrainer = PreTrainer(MAX_EPOCHS, FREQ_INFO, FREQ_SAVE, DEVICE)
     pretrainer.fit(model, train_dataloader, optimizer, MASK_RATIO, LR_SCHED_ARGS)
-
-    torch.save(model.state_dict(), './models/model_pre_trained_final.pth')

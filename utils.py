@@ -59,8 +59,23 @@ class BaseTrainer(ABC):
         self.max_epochs = max_epochs
         self.freq_info = freq_info
         self.freq_save = freq_save
-
         self.device = torch.device(device)
+        self.timestamp = None
+        self.logger = None
+
+    def save_model(self, model, epoch, optimizer, loss, losses):
+        if self.timestamp is None:
+            self.timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        save_dir = MODEL_CHECKPOINTS_PATH / type(model).__name__ / self.timestamp
+        save_dir.mkdir(parents=True, exist_ok=True)
+        torch.save({
+            'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss': loss,
+            'losses': losses
+        }, save_dir / f'epoch_{epoch:d}.pt')
+        self.logger.info('Model saved.')
 
     def plot_accuracy(self, accuracies: list[float]) -> None:
         accuracies = [accu.item() for accu in accuracies]
@@ -159,41 +174,37 @@ class PreTrainer(BaseTrainer):
         return loss
 
     def fit(self, model, train_dataloader, optimizer, mask_ratio: float, args: dict):
-        name = type(model).__name__
-        training_step = self.training_step
+        save_model = self.save_model
         freq_save = self.freq_save
         freq_info = self.freq_info
-        timestamp = None
+        logger = self.logger
+        training_step = self.training_step
+        max_epochs = self.max_epochs
         device = self.device
-        model.to(device)
-        length = len(train_dataloader)
-        losses = []
 
-        for epoch in range(1, self.max_epochs + 1):
-            loss = None
+        model.to(device)
+        losses = []
+        length = len(train_dataloader)
+
+        loss = None
+        epoch = None
+
+        for epoch in range(1, max_epochs + 1):
             for data_iter_step, (frames, _) in enumerate(tqdm(train_dataloader, f'Epoch {epoch}', leave=False, unit='batches')):
                 # we use a per iteration (instead of per epoch) lr scheduler
                 adjust_learning_rate(optimizer, data_iter_step / length + epoch, args)
                 loss = training_step(model, frames.to(device), optimizer, mask_ratio)
-            losses.append(loss)
 
             if epoch % freq_info < 1:
-                self.logger.info(f'Epoch {epoch}: loss = {loss: .5f}')
+                logger.info(f'Epoch {epoch}: loss = {loss: .5f}')
+
+            losses.append(loss)
 
             if epoch % freq_save < 1:
-                if timestamp is None:
-                    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                
-                save_dir = MODEL_CHECKPOINTS_PATH / name / timestamp
-                save_dir.mkdir(parents=True, exist_ok=True)
-                torch.save({
-                    'epoch': epoch,
-                    'model_state_dict': model.state_dict(),
-                    'optimizer_state_dict': optimizer.state_dict(),
-                    'loss': loss,
-                    'losses': losses
-                }, save_dir / f'epoch_{epoch:d}.pth')
-                self.logger.info('Model saved.')
+                save_model(model, epoch, optimizer, loss, losses)
+
+        if max_epochs % freq_save > 0:
+            save_model(model, epoch, optimizer, loss, losses)
 
 
 class FineTuner(BaseTrainer):
@@ -282,8 +293,8 @@ class FineTuner(BaseTrainer):
                     'epoch': epoch,
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
-                    'loss': loss    
-                }, MODEL_CHECKPOINTS_PATH / name / timestamp / f'epoch_{epoch:d}')
+                    'loss': loss
+                }, MODEL_CHECKPOINTS_PATH / name / timestamp / f'epoch_{epoch:d}.pt')
                 self.logger.info('Model saved.')
         self.plot_loss(self.losses)
         self.plot_accuracy(self.accuracies)

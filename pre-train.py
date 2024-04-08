@@ -14,22 +14,21 @@ from settings import (SEED,
                       MASK_RATIO,
                       LR_SCHED_ARGS)
 from torch import manual_seed, backends, Generator
+from os import cpu_count
 from torchvision.datasets import ImageNet
 from data.datasets import KaggleCatsAndDogsDataset
 from torch.utils.data import DataLoader
 from utils import PreTrainer
 
 
-from os import cpu_count
-
-
 if __name__ == '__main__':
     manual_seed(SEED)
 
+    # Device setup
     if DEVICE == 'cuda':
         backends.cudnn.enabled = True
         torch.multiprocessing.set_start_method('spawn')
-        num_workers = 0  # turn off multi-processing because of CUDA is not very compatible with it
+        num_workers = 0
     elif DEVICE in ['mps', 'cpu']:
         num_workers = cpu_count()
     else:

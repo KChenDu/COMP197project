@@ -1,14 +1,14 @@
 import torch
 
 from pathlib import Path
-from os import cpu_count
-from data.augmentation import Preprocess
 from torchvision.transforms import InterpolationMode
-from torchvision.transforms.v2 import Compose, RandomResizedCrop, RandomHorizontalFlip, ToImage, Normalize, ToDtype, Resize
 from torch import float32
+from torchvision.transforms.v2 import RandomResizedCrop, RandomHorizontalFlip, ToImage, ToDtype, Normalize, Compose
 from models.mae import mae_vit_pet
-from functools import partial
 from torch.optim import AdamW
+from functools import partial
+
+from data.augmentation import Preprocess
 from models.nn import PetModel
 from data.augmentation import CannyEdgeDetection
 from models.resunet import ResUNet
@@ -29,8 +29,6 @@ else:
 
 # Data
 DATA_ROOT = Path("data")
-
-BASELINE_MODE = False  # Put in better place later
 
 # Pre-training
 # DATASET = 'ImageNet'
@@ -58,6 +56,7 @@ LR_SCHED_ARGS = {
 }
 
 # Fine-tuning
+BASELINE_MODE = False  # Put in better place later
 FINE_TUNING_TRANSFORMS = Compose([
     # CannyEdgeDetection(100, 200),
     Preprocess(),

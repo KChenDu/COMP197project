@@ -67,8 +67,8 @@ PRE_TRAINING_FREQ_SAVE = 100
 MASK_RATIO = .75
 LR_SCHED_ARGS = {
     "warmup_epochs": 40,
-    "min_lr": 1e-6,
-    "lr": LR,
+    "min_lr": 0.,
+    "lr": 1e-3,
     "epochs": PRE_TRAINING_MAX_EPOCHS
 }
 

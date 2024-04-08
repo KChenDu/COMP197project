@@ -3,11 +3,9 @@ from models.mae import MaskedAutoencoderViT
 from models.smp_unet import ViTEncodedUnet
 from settings import (SEED,
                       DEVICE,
-                      setup_device,
                       DATA_ROOT,
                       FINE_TUNING_TRANSFORMS as TRANSFORMS,
                       FINE_TUNING_BATCH_SIZE as BATCH_SIZE,
-                      NUM_WORKERS,
                       PRE_TRAINED_MODEL_FOR_FINE_TUNING as PRE_TRAINED_MODEL,
                       FINE_TUNING_MODEL as MODEL,
                       FINE_TUNING_OPTIMIZER as OPTIMIZER,
@@ -15,19 +13,30 @@ from settings import (SEED,
                       FINE_TUNING_FREQ_INFO as FREQ_INFO,
                       FINE_TUNING_FREQ_SAVE as FREQ_SAVE,
                       BASELINE_MODE)
-from torch import manual_seed, Generator
+from torch import manual_seed, Generator, backends
 from torchvision.datasets import OxfordIIITPet
 from torch.utils.data import random_split, DataLoader
 from utils import FineTuner
 
 import torch
 import torch.nn as nn
+from os import cpu_count
 
 TRAIN = True
 
 if __name__ == '__main__':
     manual_seed(SEED)
-    setup_device()
+
+    if DEVICE == 'cuda':
+        backends.cudnn.enabled = True
+        torch.multiprocessing.set_start_method('spawn')
+        num_workers = 0  # turn off multi-processing because of CUDA is not very compatible with it
+    elif DEVICE in ['mps', 'cpu']:
+        num_workers = cpu_count()
+    else:
+        raise ValueError
+
+    torch.set_default_device(DEVICE)
 
     generator = Generator(DEVICE)
     # Load the train and validation datasets
@@ -37,8 +46,8 @@ if __name__ == '__main__':
         generator=generator)
 
     # Create the dataloaders
-    train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, generator=generator)
-    valid_dataloader = DataLoader(valid_dataset, BATCH_SIZE, num_workers=NUM_WORKERS, generator=generator)
+    train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=num_workers, generator=generator)
+    valid_dataloader = DataLoader(valid_dataset, BATCH_SIZE, num_workers=num_workers, generator=generator)
 
     # Import the model
     if MODEL is ViTEncodedUnet:

@@ -1,5 +1,5 @@
 from torch import Tensor, sum
-import torch
+from segmentation_models_pytorch.metrics import get_stats, accuracy
 
 
 def dice_score(ps: Tensor, ts: Tensor, eps: float = 1e-7) -> Tensor:
@@ -21,7 +21,7 @@ def dice_binary(ps: Tensor, ts: Tensor) -> Tensor:
     return dice_score(ps, ts)
 
 
-def segment_accuracy(ps: Tensor, ts: Tensor) -> Tensor:
+def binary_accuracy(ps: Tensor, ts: Tensor) -> Tensor:
     '''
     Calculate the accuracy of the model.
     
@@ -32,8 +32,9 @@ def segment_accuracy(ps: Tensor, ts: Tensor) -> Tensor:
     Returns:
     The accuracy of the model.
     '''
-    assert ps.ndim == 4 and ts.ndim == 4 and ps.size() == ts.size()
-    ps = torch.round(ps).type(torch.int)
-    ts = torch.round(ts).type(torch.int)
-    eqs = (ps == ts).type_as(ps)
-    return sum(eqs, dim=(1, 2, 3)) / ts[0].numel()
+    tp, fp, fn, tn = get_stats(ps, ts, 'binary', threshold=.5)
+    return accuracy(tp, fp, fn, tn, reduction='macro')
+    # ps = torch.round(ps).type(torch.int)
+    # ts = torch.round(ts).type(torch.int)
+    # eqs = (ps == ts).type_as(ps)
+    # return sum(eqs, dim=(1, 2, 3)) / ts[0].numel()

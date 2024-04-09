@@ -68,7 +68,8 @@ if __name__ == '__main__':
 
     if TRAIN:
         finetuner.fit(model, train_dataloader, valid_dataloader, optimizer)
-        torch.save(model.state_dict(), f'./models/model_fine_tuned_final_{"baseline" if BASELINE_MODE else "pretrained"}.pth')
+        # Fine-tuner现在会自动保存最终模型、是否是baseline的判断就直接用timestamp吧。等找到了好的checkpoint再把它复制出来吧
+        # torch.save(model.state_dict(), f'./models/model_fine_tuned_final_{"baseline" if BASELINE_MODE else "pretrained"}.pth')
     else:
         model.load_state_dict(torch.load('./models/model_fine_tuned_final.pth'))
 

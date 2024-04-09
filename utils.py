@@ -3,7 +3,8 @@ import torch
 
 from settings import IMAGES_PATH, DEVICE, MODEL_CHECKPOINTS_PATH
 from matplotlib import pyplot as plt
-from torch import Tensor, mean, no_grad
+from torchvision.transforms.v2 import Normalize
+from torch import Tensor, mean, no_grad, tensor
 from abc import ABC, abstractmethod
 from torch.nn import Module
 from torch.optim import Optimizer
@@ -11,9 +12,7 @@ from datetime import datetime
 from torch.utils.data import DataLoader
 from models.util.lr_sched import adjust_learning_rate
 from tqdm import tqdm
-from metrics import dice_loss, dice_binary, dice_score, segment_accuracy
-from torchvision.utils import save_image
-from torchvision.transforms.v2 import Normalize
+from metrics import dice_loss, dice_binary, binary_accuracy
 
 
 def setup_logger(file_handler_path):
@@ -49,10 +48,7 @@ def save_fig(fig_id, tight_layout=True, fig_extension="png", resolution=300):
 
 
 def pre_process(images: Tensor, labels: Tensor) -> tuple[Tensor, Tensor]:
-    # TODO: This part is not a good practice, we'll try to do the dtype conversion in the dataloader
-    images = torch.stack([torch.tensor(image) for image in images]).float()
-    labels = torch.stack([torch.tensor(label) for label in labels]).float()
-    return images, labels
+    return Normalize((.485, .456, .406), (.229, .224, .225))(images), labels
 
 
 class BaseTrainer(ABC):
@@ -64,7 +60,9 @@ class BaseTrainer(ABC):
         self.timestamp = None
         self.logger = None
 
-    def save_model(self, model: Module, epoch: int, optimizer: Optimizer, loss: Tensor, losses: list[Tensor]) -> None:
+    def save_model(self, model: Module, epoch: int, optimizer: Optimizer,
+                   loss: Tensor, accuracy: Tensor = None, losses: list[Tensor] = None, accuracies: list[Tensor] = None,
+                   val_loss: Tensor = None, val_accuracy: Tensor = None, val_losses: list[Tensor] = None, val_accuracies: list[Tensor] = None) -> None:
         if self.timestamp is None:
             self.timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         save_dir = MODEL_CHECKPOINTS_PATH / type(model).__name__ / self.timestamp
@@ -74,7 +72,13 @@ class BaseTrainer(ABC):
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
             'loss': loss,
-            'losses': losses
+            'accuracy': accuracy,
+            'losses': losses,
+            'accuracies': accuracies,
+            'val_loss': val_loss,
+            'val_accuracy': val_accuracy,
+            'val_losses': val_losses,
+            'val_accuracies': val_accuracies
         }, save_dir / f'epoch_{epoch:d}.pt')
         self.logger.info('Model saved.')
 
@@ -91,8 +95,9 @@ class BaseTrainer(ABC):
 class PreTrainer(BaseTrainer):
     def __init__(self, max_epochs: int = 1, freq_info: int = 1, freq_save: int = 100, device: str = DEVICE):
         super().__init__(max_epochs, freq_info, freq_save, device)
-        self.logger = setup_logger('log/pre-training.log')        
-        self.logger.info("device: " + device)
+        logger = setup_logger('log/pre-training.log')
+        logger.info("device: " + device)
+        self.logger = logger
 
     @staticmethod
     def training_step(model: Module, images: Tensor, optimizer: Optimizer, mask_ratio: float) -> Tensor:
@@ -111,6 +116,7 @@ class PreTrainer(BaseTrainer):
         max_epochs = self.max_epochs
         device = self.device
 
+        model.to(device)
         losses = []
         loss = None
         length = len(train_dataloader)
@@ -127,7 +133,7 @@ class PreTrainer(BaseTrainer):
             losses.append(loss)
 
             if epoch % freq_save < 1:
-                save_model(model, epoch, optimizer, loss, losses)
+                save_model(model, epoch, optimizer, loss)
 
         if max_epochs % freq_save > 0:
             save_model(model, max_epochs, optimizer, loss, losses)
@@ -136,11 +142,9 @@ class PreTrainer(BaseTrainer):
 class FineTuner(BaseTrainer):
     def __init__(self, max_epochs: int = 1, freq_info: int = 1, freq_save: int = 100, device: str = DEVICE):
         super().__init__(max_epochs, freq_info, freq_save, device)
-        self.logger = setup_logger('log/finetuning.log')
-        self.logger.info("device: " + device)
-        self.losses = []
-        self.accuracies = []
-        self.sdc_scores = []
+        logger = setup_logger('log/fine-tuning.log')
+        logger.info("device: " + device)
+        self.logger = logger
 
     def plot_accuracy(self, accuracies: list[float]) -> None:
         accuracies = [accu.item() for accu in accuracies]
@@ -193,7 +197,7 @@ class FineTuner(BaseTrainer):
         extra_info = {}
         if print_info:
             extra_info['loss'] = dice_loss(predicts, masks)
-            extra_info['accuracy'] = segment_accuracy(predicts, masks)
+            extra_info['accuracy'] = binary_accuracy(predicts, masks)
             extra_info['bin_dice_score'] = dice_binary(predicts, masks)
 
         fig, axs = plt.subplots(num_samples, 4, figsize=(12, 3 * num_samples))
@@ -216,88 +220,85 @@ class FineTuner(BaseTrainer):
         plt.show()
 
     @staticmethod
-    def training_step(model, images: Tensor, labels: Tensor, optimizer) -> Tensor:
+    def training_step(model: Module, images: Tensor, labels: Tensor, optimizer: Optimizer) -> tuple[Tensor, Tensor]:
         images, labels = pre_process(images, labels)
-        loss = mean(dice_loss(model(images), labels))
-        acc = mean(segment_accuracy(model(images), labels))
+        predictions = model(images)
+        accuracy = binary_accuracy(predictions, labels)
+        loss = mean(dice_loss(predictions, labels))
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        sdc_scores = mean(dice_score(model(images), labels))
-        return loss, acc, sdc_scores
+        return loss, accuracy
 
     @staticmethod
-    def validation_step(model, images: Tensor, labels: Tensor) -> Tensor:
+    def validation_step(model: Module, images: Tensor, labels: Tensor) -> tuple[Tensor, Tensor]:
         images, labels = pre_process(images, labels)
         predicts = model(images)
-        loss = dice_binary(predicts, labels)
-        acc = segment_accuracy(predicts, labels)
-        return loss, acc
+        accuracy = binary_accuracy(predicts, labels)
+        loss = mean(dice_loss(predicts, labels))
+        return loss, accuracy
 
     @no_grad()
-    def validate(self, model, valid_dataloader) -> list:
-        model.eval()
-        device = self.device
+    def validate(self, model: Module, valid_dataloader: DataLoader) -> tuple[list[Tensor], list[Tensor]]:
         validation_step = self.validation_step
+        device = self.device
 
-        losses_all = [None] * len(valid_dataloader)
-        acc_all = [None] * len(valid_dataloader)
+        length = len(valid_dataloader)
+        losses_all = [None] * length
+        accuracies_all = [None] * length
+
+        model.eval()
         for i, (frames, masks) in enumerate(valid_dataloader):
-            losses_all[i], acc_all[i] = validation_step(model, frames.to(device), masks.to(device))
+            losses_all[i], accuracies_all[i] = validation_step(model, frames.to(device), masks.to(device))
         model.train()
 
-        return losses_all, acc_all
+        return losses_all, accuracies_all
 
-    def fit(self, model, train_dataloader, valid_dataloader, optimizer):
-        name = type(model).__name__
-        training_step = self.training_step
-        validate = self.validate
+    def fit(self, model: Module, train_dataloader: DataLoader, valid_dataloader: DataLoader, optimizer: Optimizer) -> None:
+        save_model = self.save_model
         freq_save = self.freq_save
         freq_info = self.freq_info
-        timestamp = None
+        logger = self.logger
+        training_step = self.training_step
+        validate = self.validate
+        max_epochs = self.max_epochs
         device = self.device
-        model.to(device)
 
-        for epoch in range(1, self.max_epochs + 1):
-            loss = None
-            acc = None
+        model.to(device)
+        val_losses = []
+        val_loss = None
+        val_accuracies = []
+        val_accuracy = None
+        losses = []
+        loss = None
+        accuracies = []
+        accuracy = None
+
+        for epoch in range(1, max_epochs + 1):
             for frames, masks in tqdm(train_dataloader, f'epoch {epoch}', leave=False, unit='batches'):
-                frames = Normalize((.485, .456, .406), (.229, .224, .225), True)(frames)
-                loss, acc, sdc_score = training_step(model, frames.to(device), masks.to(device), optimizer)
-            print(type(loss))
-            self.losses.append(loss)
-            self.accuracies.append(acc)
-            self.sdc_scores.append(sdc_score)
+                loss, accuracy = training_step(model, frames.to(device), masks.to(device), optimizer)
+
+            val_losses_all, val_accuracies_all = validate(model, valid_dataloader)
+            val_loss = mean(tensor(val_losses_all))
+            val_accuracy = mean(tensor(val_accuracies_all))
 
             if epoch % freq_info < 1:
-                self.logger.info(f'Epoch {epoch}: loss = {loss: .5f}, accuracy = {acc: .5f}')
+                logger.info(f'Epoch {epoch}: loss = {loss: .5f}, accuracy = {accuracy: .5f}, val_loss = {val_loss: .5f}, val_accuracy = {val_accuracy: .5f}')
 
-            self.draw_predictions(model, valid_dataloader, print_info=True, save_img=True, tag=epoch)
+            losses.append(loss)
+            accuracies.append(accuracy)
+            val_losses.append(val_loss)
+            val_accuracies.append(val_accuracy)
+            # self.draw_predictions(model, valid_dataloader, print_info=True, save_img=True, tag=epoch)
 
             if epoch % freq_save < 1:
-                losses_all, acc_all = validate(model, valid_dataloader)
-                # val_loss = mean(torch.tensor(losses_all))
-                # val_mean = mean(torch.tensor(acc_all))
-                val_loss = mean(torch.cat(losses_all)).item()
-                val_mean = mean(torch.cat(acc_all)).item()
+                save_model(model, epoch, optimizer, loss, accuracy)
 
-                self.logger.info(f'Epoch {epoch}: val-loss = {val_loss: .5f}, val-accuracy = {val_mean: .5f}')
-                
-                if timestamp is None:
-                    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-                save_dir = MODEL_CHECKPOINTS_PATH / name / timestamp
-                save_dir.mkdir(parents=True, exist_ok=True)
-                torch.save({
-                    'epoch': epoch,
-                    'model_state_dict': model.state_dict(),
-                    'optimizer_state_dict': optimizer.state_dict(),
-                    'loss': loss
-                }, MODEL_CHECKPOINTS_PATH / name / timestamp / f'epoch_{epoch:d}.pt')
-                self.logger.info('Model saved.')
-        self.plot_loss(self.losses)
-        self.plot_accuracy(self.accuracies)
-        self.plot_sdc_score(self.sdc_scores)
+        if max_epochs % freq_save > 0:
+            save_model(model, max_epochs, optimizer, loss, accuracy, losses, accuracies, val_loss, val_accuracy, val_losses, val_accuracies)
+        # self.plot_loss(losses)
+        # self.plot_accuracy(self.accuracies)
+        # self.plot_sdc_score(self.sdc_scores)
 
         
 class Tester:

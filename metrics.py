@@ -32,6 +32,8 @@ def binary_accuracy(ps: Tensor, ts: Tensor) -> Tensor:
     Returns:
     The accuracy of the model.
     '''
+    ps = round(ps).type(int)
+    ts = round(ts).type(int)
     tp, fp, fn, tn = get_stats(ps, ts, 'binary', threshold=.5)
     return accuracy(tp, fp, fn, tn, reduction='macro')
     # ps = torch.round(ps).type(torch.int)

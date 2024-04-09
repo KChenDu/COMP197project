@@ -1,5 +1,5 @@
-from functools import partial
-from models.mae import MaskedAutoencoderViT
+import torch
+
 from models.smp_unet import ViTEncodedUnet
 from settings import (SEED,
                       DEVICE,
@@ -13,13 +13,10 @@ from settings import (SEED,
                       FINE_TUNING_FREQ_INFO as FREQ_INFO,
                       FINE_TUNING_FREQ_SAVE as FREQ_SAVE,
                       BASELINE_MODE)
-from torch import manual_seed, Generator, backends
+from torch import manual_seed, Generator
 from torchvision.datasets import OxfordIIITPet
 from torch.utils.data import random_split, DataLoader
 from utils import FineTuner
-
-import torch
-import torch.nn as nn
 from os import cpu_count
 
 TRAIN = True
@@ -27,10 +24,11 @@ TRAIN = True
 if __name__ == '__main__':
     manual_seed(SEED)
 
+    # Device setup
     if DEVICE == 'cuda':
-        backends.cudnn.enabled = True
+        torch.backends.cudnn.enabled = True
         torch.multiprocessing.set_start_method('spawn')
-        num_workers = 0  # turn off multi-processing because of CUDA is not very compatible with it
+        num_workers = 0
     elif DEVICE in ['mps', 'cpu']:
         num_workers = cpu_count()
     else:

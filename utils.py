@@ -304,9 +304,14 @@ class FineTuner(BaseTrainer):
 class Tester:
     def __init__(self, device: str = DEVICE):
         self.device = torch.device(device)
+        logger = setup_logger('log/test.log')
+        logger.info("device: " + device)
+        self.logger = logger
         
     @no_grad()
     def test(self, model, test_dataloader) -> tuple[float, float]:
+        model = model.to(self.device)
+        logger = self.logger
         model.eval()  
         device = self.device
         total_loss, total_accuracy = [], []
@@ -324,4 +329,5 @@ class Tester:
         avg_accuracy = mean(torch.tensor(total_accuracy))
 
         model.train()
+        logger.info(f'For testing: val-- loss = {avg_loss: .5f}, val-- DSC = {avg_accuracy: .5f}')
         return avg_loss, avg_accuracy

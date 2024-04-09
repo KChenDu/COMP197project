@@ -73,3 +73,4 @@ FINE_TUNING_FREQ_SAVE = 100
 
 # Testing
 TESTING_BATCH_SIZE = 16
+FINE_TUNED_MODEL = './models/checkpoints/ViTEncodedUnet/2024-04-09_16-36-54/epoch_60.pt'

@@ -63,7 +63,7 @@ FINE_TUNING_TRANSFORMS = Compose([
 ])
 FINE_TUNING_BATCH_SIZE = 16
 # PRE_TRAINED_MODEL_FOR_FINE_TUNING = './models/checkpoints/MaskedAutoencoderViT/2024-04-05_11-09-11_ImageNet/epoch_60.pth'
-PRE_TRAINED_MODEL_FOR_FINE_TUNING = './models/model_pre_trained_final.pth'
+FINE_TUNING_DATA_USAGE = 1 # [0.25, 0.5, 0.75, 1]
 # FINE_TUNING_MODEL = SMPMiTUNet
 FINE_TUNING_MODEL = ViTEncodedUnet
 FINE_TUNING_OPTIMIZER = partial(AdamW, lr=1e-4, weight_decay=1.6e-4)

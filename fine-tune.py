@@ -12,6 +12,7 @@ from settings import (SEED,
                       FINE_TUNING_MAX_EPOCHS as MAX_EPOCHS,
                       FINE_TUNING_FREQ_INFO as FREQ_INFO,
                       FINE_TUNING_FREQ_SAVE as FREQ_SAVE,
+                      FINE_TUNING_DATA_USAGE,
                       BASELINE_MODE)
 from torch import manual_seed, Generator
 from torchvision.datasets import OxfordIIITPet
@@ -39,9 +40,14 @@ if __name__ == '__main__':
     generator = Generator(DEVICE)
     # Load the train and validation datasets
     # _, train_dataset, valid_dataset = random_split(OxfordIIITPet(DATA_ROOT, target_types='segmentation', transforms=TRANSFORMS, download=True), (.8, .1, .1), generator=generator)
-    train_dataset, valid_dataset = random_split(
-        OxfordIIITPet(DATA_ROOT, target_types='segmentation', transforms=TRANSFORMS, download=True), (.9, .1),
+    
+    train_dataset, valid_dataset, drop = random_split(
+        OxfordIIITPet(DATA_ROOT, target_types='segmentation', transforms=TRANSFORMS, download=True), 
+        (0.9*FINE_TUNING_DATA_USAGE, 0.1, 0.9*(1-FINE_TUNING_DATA_USAGE)),
         generator=generator)
+    
+    total = len(train_dataset)+len(valid_dataset)+len(drop)
+    print(f"trains={len(train_dataset)/total}, valid={len(valid_dataset)/total}, drop={len(drop)/total}")
 
     # Create the dataloaders
     train_dataloader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, num_workers=num_workers, generator=generator)
@@ -58,6 +64,7 @@ if __name__ == '__main__':
             encoder_state_dict = checkpoint['model_state_dict']
             model = MODEL()
             model.load_state_dict(encoder_state_dict, strict=False)
+
         else:
             model = MODEL(encoder_state_dict=None)
     else:

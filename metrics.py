@@ -1,4 +1,4 @@
-from torch import Tensor, sum
+from torch import Tensor, sum, round, int8
 from segmentation_models_pytorch.metrics import get_stats, accuracy
 
 
@@ -32,8 +32,8 @@ def binary_accuracy(ps: Tensor, ts: Tensor) -> Tensor:
     Returns:
     The accuracy of the model.
     '''
-    ps = round(ps).type(int)
-    ts = round(ts).type(int)
+    ps = round(ps).type(int8)
+    ts = round(ts).type(int8)
     tp, fp, fn, tn = get_stats(ps, ts, 'binary', threshold=.5)
     return accuracy(tp, fp, fn, tn, reduction='macro')
     # ps = torch.round(ps).type(torch.int)

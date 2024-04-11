@@ -72,5 +72,6 @@ FINE_TUNING_FREQ_INFO = 1
 FINE_TUNING_FREQ_SAVE = 100
 
 # Testing
-TESTING_BATCH_SIZE = 16
-FINE_TUNED_MODEL = './models/checkpoints/ViTEncodedUnet/2024-04-09_16-36-54/epoch_60.pt'
+TESTING_BATCH_SIZE = 100
+FINE_TUNED_MODEL = './models/fine-tuned/epoch_60.pt'
+PRE_TRAINED_MODEL = './models/pre-trained/epoch_50_Kaggle.pth'

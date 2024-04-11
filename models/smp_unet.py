@@ -28,7 +28,6 @@ class SMPMiTUNet(nn.Module):
         x = self.model(x)
         return x
 
-
 class ViTEncodedUnet(SegmentationModel):
     def __init__(self, 
                 encoder_state_dict: any = None,
@@ -39,6 +38,7 @@ class ViTEncodedUnet(SegmentationModel):
                 decoder_use_batchnorm: bool = True,
                 decoder_channels: List[int] = (256, 128, 64, 32, 16),
                 classes: int = 1,
+                freeze_encoder: bool = False,
                 **kwargs):
         super(ViTEncodedUnet, self).__init__()
         self.encoder = MaskedAutoencoderViT(img_size=224,
@@ -54,6 +54,10 @@ class ViTEncodedUnet(SegmentationModel):
             self.encoder.load_state_dict(encoder_state_dict)
         else:
             self.encoder.initialize_weights()
+            
+        if freeze_encoder:
+            for param in self.encoder.parameters():
+                param.requires_grad = False
             
         self.decoder = UnetDecoder(
             encoder_channels=(3, 0, 64, 128, 320, 512),

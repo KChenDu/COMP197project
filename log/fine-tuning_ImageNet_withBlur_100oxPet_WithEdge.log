@@ -1,3 +1,4 @@
+[With_Blur With_Edge]
 INFO 2024-04-12 23:39:23,760 - device: cuda
 INFO 2024-04-12 23:40:04,549 - Epoch 1: loss =  0.25438, accuracy =  0.79910, val_loss =  0.28363, val_accuracy =  0.76120
 INFO 2024-04-12 23:40:44,855 - Epoch 2: loss =  0.25599, accuracy =  0.78963, val_loss =  0.26917, val_accuracy =  0.76109

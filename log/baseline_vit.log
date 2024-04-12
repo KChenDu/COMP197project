@@ -1,4 +1,4 @@
-INFO 2024-04-11 23:18:46,643 - device: cuda
+[baseline_vit]
 INFO 2024-04-11 23:19:14,966 - device: cuda
 INFO 2024-04-11 23:19:46,109 - Epoch 1: loss =  0.28085, accuracy =  0.76756, val_loss =  0.28370, val_accuracy =  0.76837
 INFO 2024-04-11 23:20:15,774 - Epoch 2: loss =  0.25255, accuracy =  0.79581, val_loss =  0.24980, val_accuracy =  0.79052

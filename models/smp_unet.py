@@ -47,6 +47,7 @@ class ViTEncodedUnet(SegmentationModel):
                                             out_chans=out_channels,
                                             embed_dim=768,
                                             depth=4,
+                                            decoder_depth=8,
                                             decoder_embed_dim=512,
                                             num_heads=12,
                                             mlp_ratio=4)

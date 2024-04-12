@@ -1,0 +1,68 @@
+INFO 2024-04-11 23:18:46,643 - device: cuda
+INFO 2024-04-11 23:19:14,966 - device: cuda
+INFO 2024-04-11 23:19:46,109 - Epoch 1: loss =  0.28085, accuracy =  0.76756, val_loss =  0.28370, val_accuracy =  0.76837
+INFO 2024-04-11 23:20:15,774 - Epoch 2: loss =  0.25255, accuracy =  0.79581, val_loss =  0.24980, val_accuracy =  0.79052
+INFO 2024-04-11 23:20:45,394 - Epoch 3: loss =  0.20105, accuracy =  0.82512, val_loss =  0.21788, val_accuracy =  0.82467
+INFO 2024-04-11 23:21:15,110 - Epoch 4: loss =  0.18679, accuracy =  0.84249, val_loss =  0.21613, val_accuracy =  0.81547
+INFO 2024-04-11 23:21:44,802 - Epoch 5: loss =  0.24359, accuracy =  0.83039, val_loss =  0.21539, val_accuracy =  0.83218
+INFO 2024-04-11 23:22:14,423 - Epoch 6: loss =  0.21093, accuracy =  0.85856, val_loss =  0.19437, val_accuracy =  0.84702
+INFO 2024-04-11 23:22:44,017 - Epoch 7: loss =  0.13281, accuracy =  0.89465, val_loss =  0.17973, val_accuracy =  0.85743
+INFO 2024-04-11 23:23:13,637 - Epoch 8: loss =  0.18623, accuracy =  0.86817, val_loss =  0.21438, val_accuracy =  0.84299
+INFO 2024-04-11 23:23:43,329 - Epoch 9: loss =  0.15446, accuracy =  0.89890, val_loss =  0.20781, val_accuracy =  0.81590
+INFO 2024-04-11 23:24:12,969 - Epoch 10: loss =  0.17803, accuracy =  0.86521, val_loss =  0.17764, val_accuracy =  0.85578
+INFO 2024-04-11 23:24:13,412 - Model saved.
+INFO 2024-04-11 23:24:43,070 - Epoch 11: loss =  0.13476, accuracy =  0.89311, val_loss =  0.17324, val_accuracy =  0.86257
+INFO 2024-04-11 23:25:12,583 - Epoch 12: loss =  0.13544, accuracy =  0.89265, val_loss =  0.16909, val_accuracy =  0.86482
+INFO 2024-04-11 23:25:42,226 - Epoch 13: loss =  0.16909, accuracy =  0.89494, val_loss =  0.19400, val_accuracy =  0.85585
+INFO 2024-04-11 23:26:11,972 - Epoch 14: loss =  0.10746, accuracy =  0.90904, val_loss =  0.23312, val_accuracy =  0.83556
+INFO 2024-04-11 23:26:41,667 - Epoch 15: loss =  0.09811, accuracy =  0.92460, val_loss =  0.17528, val_accuracy =  0.86169
+INFO 2024-04-11 23:27:11,759 - Epoch 16: loss =  0.15744, accuracy =  0.90709, val_loss =  0.16947, val_accuracy =  0.86780
+INFO 2024-04-11 23:27:41,562 - Epoch 17: loss =  0.14190, accuracy =  0.90722, val_loss =  0.18352, val_accuracy =  0.84444
+INFO 2024-04-11 23:28:11,297 - Epoch 18: loss =  0.10524, accuracy =  0.90992, val_loss =  0.16945, val_accuracy =  0.86199
+INFO 2024-04-11 23:28:40,963 - Epoch 19: loss =  0.11672, accuracy =  0.90719, val_loss =  0.16694, val_accuracy =  0.86407
+INFO 2024-04-11 23:29:10,710 - Epoch 20: loss =  0.07261, accuracy =  0.93928, val_loss =  0.16908, val_accuracy =  0.86750
+INFO 2024-04-11 23:29:11,143 - Model saved.
+INFO 2024-04-11 23:29:40,781 - Epoch 21: loss =  0.08634, accuracy =  0.93884, val_loss =  0.17014, val_accuracy =  0.86597
+INFO 2024-04-11 23:30:10,404 - Epoch 22: loss =  0.07735, accuracy =  0.93117, val_loss =  0.16860, val_accuracy =  0.86403
+INFO 2024-04-11 23:30:40,068 - Epoch 23: loss =  0.09014, accuracy =  0.92571, val_loss =  0.17001, val_accuracy =  0.86869
+INFO 2024-04-11 23:31:09,727 - Epoch 24: loss =  0.10781, accuracy =  0.92060, val_loss =  0.20581, val_accuracy =  0.85335
+INFO 2024-04-11 23:31:39,521 - Epoch 25: loss =  0.05974, accuracy =  0.95101, val_loss =  0.16785, val_accuracy =  0.86615
+INFO 2024-04-11 23:32:09,224 - Epoch 26: loss =  0.05666, accuracy =  0.95108, val_loss =  0.16516, val_accuracy =  0.87035
+INFO 2024-04-11 23:32:39,013 - Epoch 27: loss =  0.06198, accuracy =  0.95680, val_loss =  0.16258, val_accuracy =  0.87172
+INFO 2024-04-11 23:33:08,777 - Epoch 28: loss =  0.09417, accuracy =  0.93806, val_loss =  0.16940, val_accuracy =  0.86808
+INFO 2024-04-11 23:33:38,559 - Epoch 29: loss =  0.11571, accuracy =  0.92167, val_loss =  0.17094, val_accuracy =  0.86208
+INFO 2024-04-11 23:34:08,295 - Epoch 30: loss =  0.07153, accuracy =  0.94163, val_loss =  0.16119, val_accuracy =  0.87038
+INFO 2024-04-11 23:34:08,751 - Model saved.
+INFO 2024-04-11 23:34:38,511 - Epoch 31: loss =  0.05798, accuracy =  0.96108, val_loss =  0.16298, val_accuracy =  0.87256
+INFO 2024-04-11 23:35:08,288 - Epoch 32: loss =  0.10763, accuracy =  0.94878, val_loss =  0.17222, val_accuracy =  0.86884
+INFO 2024-04-11 23:35:38,091 - Epoch 33: loss =  0.04596, accuracy =  0.96243, val_loss =  0.16362, val_accuracy =  0.87136
+INFO 2024-04-11 23:36:07,823 - Epoch 34: loss =  0.05410, accuracy =  0.96072, val_loss =  0.16663, val_accuracy =  0.87013
+INFO 2024-04-11 23:36:37,528 - Epoch 35: loss =  0.04186, accuracy =  0.96488, val_loss =  0.16665, val_accuracy =  0.87239
+INFO 2024-04-11 23:37:07,333 - Epoch 36: loss =  0.04570, accuracy =  0.96591, val_loss =  0.17546, val_accuracy =  0.86829
+INFO 2024-04-11 23:37:36,948 - Epoch 37: loss =  0.04521, accuracy =  0.96273, val_loss =  0.16907, val_accuracy =  0.86969
+INFO 2024-04-11 23:38:06,576 - Epoch 38: loss =  0.07512, accuracy =  0.95142, val_loss =  0.17587, val_accuracy =  0.85278
+INFO 2024-04-11 23:38:36,269 - Epoch 39: loss =  0.05300, accuracy =  0.96205, val_loss =  0.17327, val_accuracy =  0.86684
+INFO 2024-04-11 23:39:05,999 - Epoch 40: loss =  0.05414, accuracy =  0.95124, val_loss =  0.21598, val_accuracy =  0.84837
+INFO 2024-04-11 23:39:06,452 - Model saved.
+INFO 2024-04-11 23:39:36,175 - Epoch 41: loss =  0.06067, accuracy =  0.95458, val_loss =  0.17404, val_accuracy =  0.86588
+INFO 2024-04-11 23:40:05,893 - Epoch 42: loss =  0.04007, accuracy =  0.97365, val_loss =  0.17223, val_accuracy =  0.86655
+INFO 2024-04-11 23:40:35,880 - Epoch 43: loss =  0.08023, accuracy =  0.93396, val_loss =  0.16603, val_accuracy =  0.86657
+INFO 2024-04-11 23:41:05,725 - Epoch 44: loss =  0.03919, accuracy =  0.96138, val_loss =  0.15992, val_accuracy =  0.87297
+INFO 2024-04-11 23:41:35,363 - Epoch 45: loss =  0.03792, accuracy =  0.96863, val_loss =  0.16941, val_accuracy =  0.87078
+INFO 2024-04-11 23:42:05,140 - Epoch 46: loss =  0.03805, accuracy =  0.96448, val_loss =  0.17204, val_accuracy =  0.86833
+INFO 2024-04-11 23:42:34,814 - Epoch 47: loss =  0.03888, accuracy =  0.97452, val_loss =  0.17873, val_accuracy =  0.86425
+INFO 2024-04-11 23:43:04,552 - Epoch 48: loss =  0.04067, accuracy =  0.96773, val_loss =  0.16383, val_accuracy =  0.87199
+INFO 2024-04-11 23:43:34,221 - Epoch 49: loss =  0.04165, accuracy =  0.97171, val_loss =  0.17063, val_accuracy =  0.86817
+INFO 2024-04-11 23:44:03,856 - Epoch 50: loss =  0.03126, accuracy =  0.97234, val_loss =  0.16977, val_accuracy =  0.86938
+INFO 2024-04-11 23:44:04,325 - Model saved.
+INFO 2024-04-11 23:44:34,239 - Epoch 51: loss =  0.03562, accuracy =  0.97801, val_loss =  0.17668, val_accuracy =  0.86861
+INFO 2024-04-11 23:45:03,917 - Epoch 52: loss =  0.05296, accuracy =  0.94798, val_loss =  0.18334, val_accuracy =  0.86208
+INFO 2024-04-11 23:45:33,579 - Epoch 53: loss =  0.03966, accuracy =  0.97371, val_loss =  0.17365, val_accuracy =  0.86835
+INFO 2024-04-11 23:46:03,556 - Epoch 54: loss =  0.03131, accuracy =  0.97601, val_loss =  0.16147, val_accuracy =  0.86832
+INFO 2024-04-11 23:46:33,369 - Epoch 55: loss =  0.02976, accuracy =  0.97688, val_loss =  0.16112, val_accuracy =  0.87404
+INFO 2024-04-11 23:47:03,198 - Epoch 56: loss =  0.02733, accuracy =  0.97665, val_loss =  0.16886, val_accuracy =  0.87128
+INFO 2024-04-11 23:47:32,903 - Epoch 57: loss =  0.03062, accuracy =  0.97397, val_loss =  0.15945, val_accuracy =  0.87443
+INFO 2024-04-11 23:48:02,657 - Epoch 58: loss =  0.03763, accuracy =  0.97423, val_loss =  0.17671, val_accuracy =  0.85432
+INFO 2024-04-11 23:48:32,377 - Epoch 59: loss =  0.03728, accuracy =  0.97256, val_loss =  0.16902, val_accuracy =  0.86986
+INFO 2024-04-11 23:49:02,062 - Epoch 60: loss =  0.03202, accuracy =  0.97043, val_loss =  0.16221, val_accuracy =  0.87223
+INFO 2024-04-11 23:49:02,492 - Model saved.

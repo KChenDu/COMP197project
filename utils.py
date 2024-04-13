@@ -332,3 +332,45 @@ class Tester:
         model.train()
         logger.info(f'For testing: val-- loss = {avg_loss: .5f}, val-- DSC = {avg_accuracy: .5f}')
         return avg_loss, avg_accuracy
+
+    @no_grad()
+    def draw_predictions_for_models(self, model, saved_states, tags, test_dataloader, save_img_file=None):
+        
+        frames, masks = next(iter(test_dataloader))
+        num_samples = frames.size(0)
+        images = frames.clone().detach().to(self.device)
+        images = images.type(torch.uint8)
+        frames, masks = pre_process(frames, masks)
+        frames, masks = frames.to(self.device), masks.to(self.device)
+        
+        predicts = Tensor(len(saved_states), *masks.shape).to(self.device)
+        losses = [None] * len(saved_states)
+        accuracies = [None] * len(saved_states)
+        for i, states in enumerate(saved_states):
+            state_dict = torch.load(states)
+            model.load_state_dict(state_dict['model_state_dict'], strict=False)
+            predicts[i] = model(frames)
+            loss, acc = dice_loss(predicts[i], masks), binary_accuracies(predicts[i], masks)
+            losses[i] = loss
+            accuracies[i] = acc
+            
+        cols = 2 + len(saved_states)
+        fig, axs = plt.subplots(num_samples, cols, figsize=(4*cols, 3*num_samples))
+        for j in range(num_samples):
+            axs[j, 0].imshow(images[j].cpu().numpy().transpose(1, 2, 0))
+            axs[j, 0].set_title('Image')
+            axs[j, 1].imshow(masks[j].cpu().numpy().transpose(1, 2, 0))
+            axs[j, 1].set_title('Label Mask')
+            for i, (predict, tag) in enumerate(zip(predicts, tags)):
+                axs[j, i+2].imshow(predict[j].cpu().detach().numpy().transpose(1, 2, 0))
+                axs[j, i+2].set_title(f'Predicted Mask ({tag})')
+                # print acc and loss on the image
+                info = f'loss: {losses[i][j]: .3f}\naccuracy: {accuracies[i][j]: .3f}'
+                axs[j, i+2].text(0.1, 24.0, info, fontsize=8, color='white')
+            for ax in axs[j]:
+                ax.axis('off')
+        if save_img_file is not None and save_img_file != '':
+            save_fig(save_img_file)
+        plt.show()
+        
+    

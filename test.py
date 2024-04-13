@@ -26,6 +26,8 @@ if __name__ == '__main__':
     else:
         raise ValueError
     
+    torch.set_default_device(DEVICE)
+    
     test_dataset = OxfordIIITPet(DATA_ROOT, split='test', target_types='segmentation', transforms=TRANSFORMS, download=True)
 
     # Create the dataloaders
@@ -38,5 +40,23 @@ if __name__ == '__main__':
     model.load_state_dict(encoder_state_dict, strict=False)
 
     tester = Tester()
-    avg_loss, avg_accuracy = tester.test(model, test_dataloader)
-    logger.info(f'For testing: val-- loss = {avg_loss: .5f}, val-- DSC = {avg_accuracy: .5f}')
+    # avg_loss, avg_accuracy = tester.test(model, test_dataloader)
+    # logger.info(f'For testing: val-- loss = {avg_loss: .5f}, val-- DSC = {avg_accuracy: .5f}')
+    
+    # Draw predictions for 5 models
+    BASE_PATH = 'models/checkpoints/02-fine-tuned/'
+    model_paths = [
+        'Kaggle_100oxPet/epoch_60.pt',
+        'ImageNet_100oxPet/epoch_60.pt',
+        'ImageNet_100oxPet_withEdge/epoch_60.pt',
+        'ImageNet_100oxPet_withBlur/epoch_60.pt',
+        #'ImageNet_100oxPet_withBlurAndEdge/epoch_60.pt'
+    ]
+    states = [(BASE_PATH + path) for path in model_paths]
+    tester.draw_predictions_for_models(model = model,
+                                       saved_states=states,
+                                       tags = ['Kaggle', 'ImageNet', 'ImageNet with Edge', 'ImageNet with Blur'], # , 'ImageNet with Edge and Blur'],
+                                       test_dataloader = test_dataloader,
+                                       save_img_file='test_predictions')
+    
+    

@@ -21,7 +21,7 @@ def dice_binary(ps: Tensor, ts: Tensor) -> Tensor:
     return dice_score(ps, ts)
 
 
-def binary_accuracy(ps: Tensor, ts: Tensor) -> Tensor:
+def mean_binary_accuracy(ps: Tensor, ts: Tensor) -> Tensor:
     '''
     Calculate the accuracy of the model.
     
@@ -35,8 +35,29 @@ def binary_accuracy(ps: Tensor, ts: Tensor) -> Tensor:
     ps = round(ps).type(int8)
     ts = round(ts).type(int8)
     tp, fp, fn, tn = get_stats(ps, ts, 'binary', threshold=.5)
+    
     return accuracy(tp, fp, fn, tn, reduction='macro')
     # ps = torch.round(ps).type(torch.int)
     # ts = torch.round(ts).type(torch.int)
     # eqs = (ps == ts).type_as(ps)
     # return sum(eqs, dim=(1, 2, 3)) / ts[0].numel()
+
+def binary_accuracies(ps: Tensor, ts: Tensor) -> Tensor:
+    '''
+    Calculate the accuracy of the model.
+    
+    Args:
+    ps: The predicted values.
+    ts: The target values.
+    
+    Returns:
+    The accuracy of the model.
+    '''
+    ps = round(ps).type(int8)
+    ts = round(ts).type(int8)
+    tp, fp, fn, tn = get_stats(ps, ts, 'binary', threshold=.5)
+    
+    accuracies = Tensor(len(ps))
+    for i in range(len(ps)):
+        accuracies[i] = accuracy(tp[i], fp[i], fn[i], tn[i], reduction='macro')
+    return accuracies

@@ -20,7 +20,7 @@ from torch.utils.data import random_split, DataLoader
 from utils import FineTuner
 from os import cpu_count
 
-TRAIN = True
+TRAIN = False
 
 if __name__ == '__main__':
     manual_seed(SEED)

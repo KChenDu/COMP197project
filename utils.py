@@ -12,7 +12,7 @@ from datetime import datetime
 from torch.utils.data import DataLoader
 from models.util.lr_sched import adjust_learning_rate
 from tqdm import tqdm
-from metrics import dice_loss, dice_binary, binary_accuracy
+from metrics import dice_loss, dice_binary, mean_binary_accuracy, binary_accuracies
 
 
 def setup_logger(file_handler_path):
@@ -190,19 +190,20 @@ class FineTuner(BaseTrainer):
             # predicts = predicts[:num_samples]
 
         frames, masks = frames.to(self.device), masks.to(self.device)
+        images = frames.clone().detach()
+        images = images.type(torch.uint8)
         frames, masks = pre_process(frames, masks)
         predicts = model(frames)
-        frames = frames.type(torch.uint8)
 
         extra_info = {}
         if print_info:
             extra_info['loss'] = dice_loss(predicts, masks)
-            extra_info['accuracy'] = binary_accuracy(predicts, masks)
+            extra_info['accuracy'] = binary_accuracies(predicts, masks)
             extra_info['bin_dice_score'] = dice_binary(predicts, masks)
 
         fig, axs = plt.subplots(num_samples, 4, figsize=(12, 3 * num_samples))
         for j in range(num_samples):
-            axs[j, 0].imshow(frames[j].cpu().numpy().transpose(1, 2, 0))
+            axs[j, 0].imshow(images[j].cpu().numpy().transpose(1, 2, 0))
             axs[j, 0].set_title('Image')
             axs[j, 1].imshow(masks[j].cpu().numpy().transpose(1, 2, 0))
             axs[j, 1].set_title('Label Mask')
@@ -212,7 +213,7 @@ class FineTuner(BaseTrainer):
             for ax in axs[j]:
                 ax.axis('off')
             if print_info:
-                info = '\n'.join([f'{k}: {v[j]: .5f}' for k, v in extra_info.items()])
+                info = '\n'.join([f'{k}: {v[j].item(): .5f}' for k, v in extra_info.items()])
                 axs[j, 3].text(0.1, 0.5, info, fontsize=12, color='black')
         fig.suptitle(f'Sample {tag}')
         if save_img:
@@ -223,7 +224,7 @@ class FineTuner(BaseTrainer):
     def training_step(model: Module, images: Tensor, labels: Tensor, optimizer: Optimizer) -> tuple[Tensor, Tensor]:
         images, labels = pre_process(images, labels)
         predictions = model(images)
-        accuracy = binary_accuracy(predictions, labels)
+        accuracy = mean_binary_accuracy(predictions, labels)
         loss = mean(dice_loss(predictions, labels))
         optimizer.zero_grad()
         loss.backward()
@@ -234,7 +235,7 @@ class FineTuner(BaseTrainer):
     def validation_step(model: Module, images: Tensor, labels: Tensor) -> tuple[Tensor, Tensor]:
         images, labels = pre_process(images, labels)
         predicts = model(images)
-        accuracy = binary_accuracy(predicts, labels)
+        accuracy = mean_binary_accuracy(predicts, labels)
         loss = mean(dice_loss(predicts, labels))
         return loss, accuracy
 
@@ -289,7 +290,7 @@ class FineTuner(BaseTrainer):
             accuracies.append(accuracy)
             val_losses.append(val_loss)
             val_accuracies.append(val_accuracy)
-            # self.draw_predictions(model, valid_dataloader, print_info=True, save_img=True, tag=epoch)
+            self.draw_predictions(model, valid_dataloader, print_info=True, save_img=True, tag=epoch)
 
             if epoch % freq_save < 1:
                 save_model(model, epoch, optimizer, loss, accuracy)
@@ -323,7 +324,7 @@ class Tester:
 
             predicts_test = model(frames_test)
             total_loss += [mean(dice_loss(predicts_test, masks_test))]
-            total_accuracy += [mean(dice_binary(predicts_test, masks_test))]
+            total_accuracy += [mean(mean_binary_accuracy(predicts_test, masks_test))]
 
         avg_loss = mean(torch.tensor(total_loss))
         avg_accuracy = mean(torch.tensor(total_accuracy))

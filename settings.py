@@ -44,9 +44,9 @@ PRE_TRAINING_BATCH_SIZE = 16
 PRE_TRAINING_MODEL = mae_vit_pet
 LR = 1.5e-4 * PRE_TRAINING_BATCH_SIZE / 256.
 PRE_TRAINING_OPTIMIZER = partial(AdamW, lr=LR, weight_decay=.05, betas=(.9, .95))
-PRE_TRAINING_MAX_EPOCHS = 3
+PRE_TRAINING_MAX_EPOCHS = 1
 PRE_TRAINING_FREQ_INFO = 1
-PRE_TRAINING_FREQ_SAVE = 2
+PRE_TRAINING_FREQ_SAVE = 1
 MASK_RATIO = .75
 LR_SCHED_ARGS = {
     "warmup_epochs": 40,
@@ -62,7 +62,7 @@ FINE_TUNING_TRANSFORMS = Compose([
     Preprocess(),
 ])
 FINE_TUNING_BATCH_SIZE = 16
-# PRE_TRAINED_MODEL_FOR_FINE_TUNING = './models/checkpoints/MaskedAutoencoderViT/2024-04-05_11-09-11_ImageNet/epoch_60.pth'
+PRE_TRAINED_MODEL = './models/checkpoints/MaskedAutoencoderViT/2024-04-13_16-12-13/epoch_1.pt' ##TODO: change manually to yours 
 FINE_TUNING_DATA_USAGE = 1 # [0.25, 0.5, 0.75, 1]
 # FINE_TUNING_MODEL = SMPMiTUNet
 FINE_TUNING_MODEL = ViTEncodedUnet
@@ -73,5 +73,4 @@ FINE_TUNING_FREQ_SAVE = 100
 
 # Testing
 TESTING_BATCH_SIZE = 100
-FINE_TUNED_MODEL = './models/fine-tuned/epoch_60.pt'
-PRE_TRAINED_MODEL = './models/pre-trained/epoch_50_Kaggle.pth'
+FINE_TUNED_MODEL = './models/checkpoints/ViTEncodedUnet/2024-04-13_16-34-48/epoch_1.pt' ##TODO: change manually to yours 

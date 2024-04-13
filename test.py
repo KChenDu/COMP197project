@@ -10,7 +10,7 @@ from torchvision.datasets import OxfordIIITPet
 from torch.utils.data import DataLoader
 from os import cpu_count
 from utils import Tester
-from loguru import logger
+
 
 
 if __name__ == '__main__':
@@ -39,4 +39,3 @@ if __name__ == '__main__':
 
     tester = Tester()
     avg_loss, avg_accuracy = tester.test(model, test_dataloader)
-    logger.info(f'For testing: val-- loss = {avg_loss: .5f}, val-- DSC = {avg_accuracy: .5f}')

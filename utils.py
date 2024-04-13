@@ -2,7 +2,6 @@ import logging
 import torch
 
 from settings import IMAGES_PATH, DEVICE, MODEL_CHECKPOINTS_PATH
-from matplotlib import pyplot as plt
 from torchvision.transforms.v2 import Normalize
 from torch import Tensor, mean, no_grad, tensor
 from abc import ABC, abstractmethod
@@ -39,12 +38,6 @@ def setup_logger(file_handler_path):
     return logger
 
 
-def save_fig(fig_id, tight_layout=True, fig_extension="png", resolution=300):
-    IMAGES_PATH.mkdir(parents=True, exist_ok=True)
-    path = IMAGES_PATH / (f"{fig_id}." + fig_extension)
-    if tight_layout:
-        plt.tight_layout()
-    plt.savefig(path, format=fig_extension)
 
 
 def pre_process(images: Tensor, labels: Tensor) -> tuple[Tensor, Tensor]:
@@ -146,78 +139,8 @@ class FineTuner(BaseTrainer):
         logger.info("device: " + device)
         self.logger = logger
 
-    def plot_accuracy(self, accuracies: list[float]) -> None:
-        accuracies = [accu.item() for accu in accuracies]
-        plt.figure()
-        plt.plot(accuracies, marker='o', linestyle='-', color='b')
-        plt.xlabel('Epoch')
-        plt.ylabel('Accuracy')
-        plt.title('Accuracy vs Epoch')
-        save_fig('accuracy_vs_epoch')
-        plt.show()
 
-    def plot_loss(self, losses: list[float]) -> None:
-        losses = [loss.item() for loss in losses]
-        plt.figure()
-        plt.plot(losses, marker='o', linestyle='-', color='r')
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        plt.title('Loss vs Epoch')
-        save_fig('loss_vs_epoch')
-        plt.show()
 
-    def plot_sdc_score(self, sdc_scores: list[float]) -> None:
-        sdc_scores = [score.item() for score in sdc_scores]
-        plt.figure()
-        plt.plot(sdc_scores, marker='o', linestyle='-', color='g')
-        plt.xlabel('Epoch')
-        plt.ylabel('SDC Score')
-        plt.title('SDC Score vs Epoch')
-        save_fig('sdc_score_vs_epoch')
-        plt.show()
-
-    def draw_predictions(self, model: Module, valid_dataloader: DataLoader, print_info=False, save_img=True,
-                         max_samples=16, tag=''):
-
-        frames, masks = next(iter(valid_dataloader))
-
-        num_samples = frames.size(0)
-
-        if num_samples > max_samples:
-            num_samples = max_samples
-            frames = frames[:num_samples]
-            masks = masks[:num_samples]
-            # predicts = predicts[:num_samples]
-
-        frames, masks = frames.to(self.device), masks.to(self.device)
-        frames, masks = pre_process(frames, masks)
-        predicts = model(frames)
-        frames = frames.type(torch.uint8)
-
-        extra_info = {}
-        if print_info:
-            extra_info['loss'] = dice_loss(predicts, masks)
-            extra_info['accuracy'] = binary_accuracy(predicts, masks)
-            extra_info['bin_dice_score'] = dice_binary(predicts, masks)
-
-        fig, axs = plt.subplots(num_samples, 4, figsize=(12, 3 * num_samples))
-        for j in range(num_samples):
-            axs[j, 0].imshow(frames[j].cpu().numpy().transpose(1, 2, 0))
-            axs[j, 0].set_title('Image')
-            axs[j, 1].imshow(masks[j].cpu().numpy().transpose(1, 2, 0))
-            axs[j, 1].set_title('Label Mask')
-            axs[j, 2].imshow(predicts[j].cpu().detach().numpy().transpose(1, 2, 0))
-            axs[j, 2].set_title('Predicted Mask')
-            # axs[j, 3].imshow(np.ones(predicts.shape[2:])*255, cmap='gray')
-            for ax in axs[j]:
-                ax.axis('off')
-            if print_info:
-                info = '\n'.join([f'{k}: {v[j]: .5f}' for k, v in extra_info.items()])
-                axs[j, 3].text(0.1, 0.5, info, fontsize=12, color='black')
-        fig.suptitle(f'Sample {tag}')
-        if save_img:
-            save_fig(f'prediction_{tag}')
-        plt.show()
 
     @staticmethod
     def training_step(model: Module, images: Tensor, labels: Tensor, optimizer: Optimizer) -> tuple[Tensor, Tensor]:

@@ -4,6 +4,7 @@ from settings import (SEED,
                       DEVICE,
                       DATASET,
                       DATA_ROOT,
+                      PRE_TRAINING_DATA_USAGE,
                       PRE_TRAINING_TRANSFORM as TRANSFORM,
                       PRE_TRAINING_BATCH_SIZE as BATCH_SIZE,
                       PRE_TRAINING_MODEL as MODEL,
@@ -17,7 +18,7 @@ from torch import manual_seed, backends, Generator
 from os import cpu_count
 from torchvision.datasets import ImageNet
 from data.datasets import KaggleCatsAndDogsDataset
-from torch.utils.data import DataLoader
+from torch.utils.data import random_split, DataLoader
 from utils import PreTrainer
 
 
@@ -38,7 +39,15 @@ if __name__ == '__main__':
 
     # Load the train dataset
     if DATASET == 'ImageNet':
-        train_dataset = ImageNet(DATA_ROOT, 'val', transform=TRANSFORM)
+        generator = Generator(DEVICE)
+        train_dataset, drop = random_split(
+            ImageNet(DATA_ROOT, 'val', transform=TRANSFORM),
+            (PRE_TRAINING_DATA_USAGE, (1-PRE_TRAINING_DATA_USAGE)),
+            generator=generator)
+        
+        total = len(train_dataset)+len(drop)
+        print(f"trains={len(train_dataset)/total}, drop={len(drop)/total}, total={total}")
+
     elif DATASET == 'KaggleCatsAndDogs':
         train_dataset = KaggleCatsAndDogsDataset(DATA_ROOT, TRANSFORM)
     else:

@@ -31,8 +31,8 @@ else:
 DATA_ROOT = Path("data")
 
 # Pre-training
-# DATASET = 'ImageNet'
-DATASET = 'KaggleCatsAndDogs'
+DATASET = 'ImageNet'
+# DATASET = 'KaggleCatsAndDogs'
 PRE_TRAINING_TRANSFORM = Compose([
     RandomResizedCrop(224, (.2, 1.), interpolation=InterpolationMode.BICUBIC),
     RandomHorizontalFlip(),
@@ -41,6 +41,7 @@ PRE_TRAINING_TRANSFORM = Compose([
     Normalize((.485, .456, .406), (.229, .224, .225))
 ])
 PRE_TRAINING_BATCH_SIZE = 16
+PRE_TRAINING_DATA_USAGE = 1 # [0.5, 1]
 PRE_TRAINING_MODEL = mae_vit_pet
 LR = 1.5e-4 * PRE_TRAINING_BATCH_SIZE / 256.
 PRE_TRAINING_OPTIMIZER = partial(AdamW, lr=LR, weight_decay=.05, betas=(.9, .95))

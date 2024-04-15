@@ -20,7 +20,7 @@ from models.util.pos_embed import get_2d_sincos_pos_embed
 
 from models.util.sampling import Downsample, Upsample
 from segmentation_models_pytorch.encoders._base import EncoderMixin
-
+from torchvision.transforms.v2 import GaussianBlur
 
 class MaskedAutoencoderViT(nn.Module, EncoderMixin):
     """ Masked Autoencoder with VisionTransformer backbone
@@ -28,7 +28,7 @@ class MaskedAutoencoderViT(nn.Module, EncoderMixin):
     def __init__(self, img_size=224, patch_size=16, in_chans=3, out_chans=(512, 320, 128, 64),
                  embed_dim=1024, depth=24, num_heads=16,
                  decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
-                 mlp_ratio=4., norm_layer=nn.LayerNorm, norm_pix_loss=False):
+                 mlp_ratio=4., norm_layer=nn.LayerNorm, norm_pix_loss=False, gaussian_blur_intensity=1):
         super().__init__()
 
         # --------------------------------------------------------------------------
@@ -77,6 +77,8 @@ class MaskedAutoencoderViT(nn.Module, EncoderMixin):
         self.patch_size = patch_size
         self.embed_dim = embed_dim
         self.norm_pix_loss = norm_pix_loss
+        
+        self.blurring = GaussianBlur(kernel_size=gaussian_blur_intensity)
 
         self._out_channels = [3, 0] + list(out_chans)[::-1]
         self._depth = depth
@@ -255,6 +257,7 @@ class MaskedAutoencoderViT(nn.Module, EncoderMixin):
         pred: [N, L, p*p*3]
         mask: [N, L], 0 is keep, 1 is remove, 
         """
+                
         target = self.patchify(imgs)
         if self.norm_pix_loss:
             mean = target.mean(dim=-1, keepdim=True)
@@ -268,7 +271,10 @@ class MaskedAutoencoderViT(nn.Module, EncoderMixin):
         return loss
 
     def forward(self, imgs, mask_ratio=0.75):
-        latent, mask, ids_restore = self.forward_encoder(imgs, mask_ratio)
+        # apply Gaussian blur
+        processed_imgs = self.blurring(imgs)
+        
+        latent, mask, ids_restore = self.forward_encoder(processed_imgs, mask_ratio)
         pred = self.forward_decoder(latent, ids_restore)  # [N, L, p*p*3]
         loss = self.forward_loss(imgs, pred, mask)
         return loss, pred, mask

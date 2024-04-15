@@ -237,7 +237,7 @@ class Tester:
         logger = self.logger
         model.eval()  
         device = self.device
-        total_loss, total_accuracy = [], []
+        total_loss, total_DSC = [], []
 
         for frames_test, masks_test in tqdm(test_dataloader, desc='Testing', unit='batches'):
             
@@ -246,11 +246,12 @@ class Tester:
 
             predicts_test = model(frames_test)
             total_loss += [mean(dice_loss(predicts_test, masks_test))]
-            total_accuracy += [mean(dice_binary(predicts_test, masks_test))]
-
+            total_DSC += [mean(dice_binary(predicts_test, masks_test))]
+            total_accuracy = [mean(binary_accuracy(predicts_test, masks_test))]
         avg_loss = mean(torch.tensor(total_loss))
+        avg_DSC = mean(torch.tensor(total_DSC))
         avg_accuracy = mean(torch.tensor(total_accuracy))
 
         model.train()
-        logger.info(f'For testing: val-- loss = {avg_loss: .5f}, val-- DSC = {avg_accuracy: .5f}')
-        return avg_loss, avg_accuracy
+        logger.info(f'For testing: val-- loss = {avg_loss: .5f}, val-- DSC = {avg_DSC: .5f}, val-- accuracy = {avg_accuracy: .5f}')
+        return avg_loss, avg_DSC

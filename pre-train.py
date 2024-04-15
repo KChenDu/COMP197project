@@ -12,6 +12,7 @@ from settings import (SEED,
                       PRE_TRAINING_MAX_EPOCHS as MAX_EPOCHS,
                       PRE_TRAINING_FREQ_INFO as FREQ_INFO,
                       PRE_TRAINING_FREQ_SAVE as FREQ_SAVE,
+                      PRE_TRAINING_BLURRING,
                       MASK_RATIO,
                       LR_SCHED_ARGS)
 from torch import manual_seed, backends, Generator
@@ -57,7 +58,7 @@ if __name__ == '__main__':
     train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=num_workers, generator=Generator(device=DEVICE))
 
     # Import the model
-    model = MODEL()
+    model = MODEL(gaussian_blur_intensity=PRE_TRAINING_BLURRING)
     
     # Define the optimizer
     optimizer = OPTIMIZER(model.parameters())

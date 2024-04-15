@@ -20,7 +20,7 @@ from torch.utils.data import random_split, DataLoader
 from utils import FineTuner
 from os import cpu_count
 
-TRAIN = True
+# TRAIN = True
 
 if __name__ == '__main__':
     manual_seed(SEED)
@@ -71,14 +71,15 @@ if __name__ == '__main__':
     optimizer = OPTIMIZER(model.parameters())
 
     finetuner = FineTuner(MAX_EPOCHS, FREQ_INFO, FREQ_SAVE, DEVICE)
+    finetuner.fit(model, train_dataloader, valid_dataloader, optimizer)
 
-    if TRAIN:
-        finetuner.fit(model, train_dataloader, valid_dataloader, optimizer)
-        # Fine-tuner现在会自动保存最终模型、是否是baseline的判断就直接用timestamp吧。等找到了好的checkpoint再把它复制出来吧
-        # torch.save(model.state_dict(), f'./models/model_fine_tuned_final_{"baseline" if BASELINE_MODE else "pretrained"}.pth')
-    else:
-        status = torch.load('./models/fine-tuned/epoch_60.pt')
-        fine_tuned_model = status['model_state_dict']
-        model.load_state_dict(fine_tuned_model)
-        finetuner.fit(model, train_dataloader, valid_dataloader, optimizer)
+    # if TRAIN:
+    #     finetuner.fit(model, train_dataloader, valid_dataloader, optimizer)
+    #     # Fine-tuner现在会自动保存最终模型、是否是baseline的判断就直接用timestamp吧。等找到了好的checkpoint再把它复制出来吧
+    #     # torch.save(model.state_dict(), f'./models/model_fine_tuned_final_{"baseline" if BASELINE_MODE else "pretrained"}.pth')
+    # else:
+    #     status = torch.load('./models/fine-tuned/epoch_60.pt')
+    #     fine_tuned_model = status['model_state_dict']
+    #     model.load_state_dict(fine_tuned_model)
+    #     finetuner.fit(model, train_dataloader, valid_dataloader, optimizer)
 

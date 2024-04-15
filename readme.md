@@ -1,28 +1,37 @@
 # COMP197 Group Project
+
 # Installation
+
 The **most recommended** installation is to first create a conda environment and then run the following command to install the essential packages:
+
 - for CPU developer:
-  ```bash
-  conda install pytorch torchvision cpuonly -c pytorch
-  ```
+
+```bash
+conda install pytorch torchvision cpuonly -c pytorch
+```
+
 - for CUDA developer, please check the CUDA version of your system:
-  ```bash
-  conda install pytorch torchvision pytorch-cuda=12.1 -c pytorch -c nvidia
-  ```
-  or
-  ```bash
-  conda install pytorch torchvision pytorch-cuda=11.8 -c pytorch -c nvidia
-  ```
+
+```bash
+conda install pytorch torchvision pytorch-cuda=12.1 -c pytorch -c nvidia
+```
+
+or
+
+```bash
+conda install pytorch torchvision pytorch-cuda=11.8 -c pytorch -c nvidia
+```
 
 ## Extra Packages
 
 In these project, we adopted exactly 3 extra pip packages for our development:
 
-- *segmentation-models-pytorc*h
+- *segmentation-models-pytorch*
 - *scipy*
 - *opencv-python*
 
 Please install them via pip (not supported by conda) by running the following command:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -39,18 +48,18 @@ then the dataset will appear in `data/oxford-iiit-pet`.
 
 ### Cats-vs-Dogs Dataset
 
-[Download](https://liveuclac-my.sharepoint.com/personal/ucabkc8_ucl_ac_uk/_layouts/15/onedrive.aspx?ga=1&id=%2Fpersonal%2Fucabkc8%5Fucl%5Fac%5Fuk%2FDocuments%2FCOMP197project%2Fdata) the Whole `PetImages` Folder from the OneDrive as a zip file, then extract it to `data` directory.
+[***Click here to Download***](https://liveuclac-my.sharepoint.com/personal/ucabkc8_ucl_ac_uk/_layouts/15/onedrive.aspx?ga=1&id=%2Fpersonal%2Fucabkc8%5Fucl%5Fac%5Fuk%2FDocuments%2FCOMP197project%2Fdata) the Whole `PetImages` Folder from the OneDrive as a zip file, then extract it to `data` directory.
 
 ### ImageNet-1k-valid
 
-[Download](https://liveuclac-my.sharepoint.com/personal/ucabkc8_ucl_ac_uk/_layouts/15/onedrive.aspx?ga=1&id=%2Fpersonal%2Fucabkc8%5Fucl%5Fac%5Fuk%2FDocuments%2FCOMP197project%2Fdata) `ILSVRC2012_devkit_t12.tar.gz` and `ILSVRC2012_img_val.tar.gz`, then place them in `data` directory.
+[***Click here to Download***](https://liveuclac-my.sharepoint.com/personal/ucabkc8_ucl_ac_uk/_layouts/15/onedrive.aspx?ga=1&id=%2Fpersonal%2Fucabkc8%5Fucl%5Fac%5Fuk%2FDocuments%2FCOMP197project%2Fdata) `ILSVRC2012_devkit_t12.tar.gz` and `ILSVRC2012_img_val.tar.gz`, then place them in `data` directory.
 
 
 # Execution
 
 This guide will provide you with the instruction to run this project and reproduce the result we obtained in our report. Including the method of training the pre-traine model, fine-tune model and evaluating the fine-tune model. However, this code repository does not contain the plot and visualization code that produce the figures in the report due to the limited 3 extra packages we can use in this project.
 
-Also, the saved model files are not included in this repository, you can either train the model from scratch or download the saved model files from the [OneDrive](https://liveuclac-my.sharepoint.com/:f:/g/personal/ucabkc8_ucl_ac_uk/EnD2wgfN1UBBgiS3RdVfqbsBv6LpaLY8QwV4XinEUG_SWA). Models are placed in the `checkpoints` directory, inside the `checkpoints` directory, pre-trained models are placed in the `01-pre-trained` directory, and fine-tuned models are placed in the `02-fine-tuned` directory. Also, if you want to test baseline models, they are placed in the `03-baseline-vit` directory.
+Also, the saved model files are not included in this repository, you can either train the model from scratch or download the saved model files from the [***OneDrive (Hyperlink)***](https://liveuclac-my.sharepoint.com/:f:/g/personal/ucabkc8_ucl_ac_uk/EnD2wgfN1UBBgiS3RdVfqbsBv6LpaLY8QwV4XinEUG_SWA). Models are placed in the `checkpoints` directory, inside the `checkpoints` directory, pre-trained models are placed in the `01-pre-trained` directory, and fine-tuned models are placed in the `02-fine-tuned` directory. Also, if you want to test baseline models, they are placed in the `03-baseline-vit` directory.
 
 During the model training, we trained different models with different configurations and manually configured the parameters in the code. Almost all the configurable parameters are placed in `settings.py` file, but for some specific configurations you will need to modify from the target file.
 
